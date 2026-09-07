@@ -7,7 +7,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import NewPrescriptionPage from '@/pages/doctor/NewPrescriptionPage';
-import NotFound from '@/pages/not-found';
 import {
   Route,
   Switch,
@@ -25,7 +24,8 @@ function Router() {
       <Switch>
         <Route path="/" component={NewPrescriptionPage} />
         <Route path="/doctor/new-prescription" component={NewPrescriptionPage} />
-        <Route component={NotFound} />
+        {/* The published artifact can be reached with a deployment-prefixed pathname. */}
+        <Route component={NewPrescriptionPage} />
       </Switch>
     </RoutedErrorBoundary>
   );
