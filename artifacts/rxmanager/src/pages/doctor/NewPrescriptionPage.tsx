@@ -636,6 +636,8 @@ export default function NewPrescriptionPage() {
   const [patientSearch, setPatientSearch] = useState("");
   const [showQueue, setShowQueue] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showQuickTools, setShowQuickTools] = useState(true);
+  const [showNewToolNotice, setShowNewToolNotice] = useState(false);
   const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [isManageTemplates, setIsManageTemplates] = useState(false);
   const [allTemplatesGrouped, setAllTemplatesGrouped] = useState<Record<string, any[]>>({});
@@ -662,6 +664,22 @@ export default function NewPrescriptionPage() {
   const queueServing = queueData?.serving?.[0] ?? null;
   const queueWaiting = queueData?.waiting ?? [];
   const allQueue = [...(queueData?.serving ?? []), ...(queueData?.waiting ?? [])];
+  const quickToolItems = [
+    {
+      key: "templates",
+      label: L.templates,
+      icon: BookOpen,
+      onClick: () => setShowTemplates(v => !v),
+      indicator: showTemplates ? "−" : "+",
+    },
+    {
+      key: "new-tool",
+      label: isBn ? "নতুন টুল" : "New Tool",
+      icon: Plus,
+      onClick: () => setShowNewToolNotice(v => !v),
+      indicator: "+",
+    },
+  ];
 
   // ── Doctor status from queue data (new fields added to GET /queue)
   const qDoctorStatus = (queueData as any)?.doctorStatus ?? null;
@@ -2308,54 +2326,74 @@ export default function NewPrescriptionPage() {
 
               <Separator className="my-1" />
 
-              {/* RX QUICK TOOLS — use the same existing template toggle and
-                  medicine shortcut handlers as the main workspace. */}
+              {/* RX QUICK TOOLS — a compact, extensible tool list. */}
               <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2 dark:border-teal-900 dark:bg-teal-950/20">
-                <div className="mb-1.5 flex items-center justify-between">
+                <button
+                  type="button"
+                  className="mb-1.5 flex w-full items-center justify-between text-left"
+                  onClick={() => setShowQuickTools(v => !v)}
+                  aria-expanded={showQuickTools}
+                >
                   <span className="text-[10px] font-bold uppercase tracking-wide text-teal-700 dark:text-teal-300">
                     {isBn ? "প্রেসক্রিপশন টুলস" : "RX QUICK TOOLS"}
                   </span>
-                  <BookOpen className="h-3 w-3 text-teal-600 dark:text-teal-400" />
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 w-full justify-start gap-1.5 bg-background text-xs"
-                  onClick={() => setShowTemplates(v => !v)}
-                >
-                  <BookOpen className="h-3 w-3" />
-                  {L.templates}
-                  <span className="ml-auto text-[10px] text-muted-foreground">{showTemplates ? "−" : "+"}</span>
-                </Button>
-                {visibleMedicineShortcuts.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {isBn ? "সাম্প্রতিক ওষুধ" : "Recent medicines"}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {visibleMedicineShortcuts.map(shortcut => (
-                        <div key={shortcut.key} className="flex max-w-full items-center rounded border border-teal-200 bg-background text-[10px] dark:border-teal-800">
-                          <button
-                            type="button"
-                            className="min-h-7 max-w-[10rem] truncate px-1.5 text-left hover:bg-muted"
-                            onClick={() => useMedicineShortcut(shortcut)}
-                            title={shortcut.brandName || shortcut.genericName}
-                          >
-                            {shortcut.brandName || shortcut.genericName}
-                          </button>
-                          <button
-                            type="button"
-                            className="min-h-7 px-1 text-amber-500 hover:text-amber-600"
-                            aria-label={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
-                            title={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
-                            onClick={() => toggleMedicineFavorite(shortcut.key)}
-                          >
-                            <Star className={cn("h-2.5 w-2.5", shortcut.isFavorite && "fill-current")} />
-                          </button>
+                  {showQuickTools ? <ChevronUp className="h-3 w-3 text-teal-600 dark:text-teal-400" /> : <ChevronDown className="h-3 w-3 text-teal-600 dark:text-teal-400" />}
+                </button>
+                {showQuickTools && (
+                  <div className="space-y-1.5">
+                    {/* Add future tools to quickToolItems without changing this list layout. */}
+                    {quickToolItems.map(tool => {
+                      const ToolIcon = tool.icon;
+                      return (
+                        <Button
+                          key={tool.key}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 w-full justify-start gap-1.5 bg-background text-xs"
+                          onClick={tool.onClick}
+                        >
+                          <ToolIcon className="h-3 w-3" />
+                          {tool.label}
+                          <span className="ml-auto text-[10px] text-muted-foreground">{tool.indicator}</span>
+                        </Button>
+                      );
+                    })}
+                    {showNewToolNotice && (
+                      <div className="rounded border border-dashed border-teal-300 bg-background px-2 py-1.5 text-xs text-muted-foreground dark:border-teal-800">
+                        {isBn ? "নতুন ক্লিনিক্যাল টুল এখানে যোগ করা যাবে।" : "New clinical tools can be added here."}
+                      </div>
+                    )}
+                    {visibleMedicineShortcuts.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {isBn ? "সাম্প্রতিক ওষুধ" : "Recent medicines"}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {visibleMedicineShortcuts.map(shortcut => (
+                            <div key={shortcut.key} className="flex max-w-full items-center rounded border border-teal-200 bg-background text-[10px] dark:border-teal-800">
+                              <button
+                                type="button"
+                                className="min-h-7 max-w-[10rem] truncate px-1.5 text-left hover:bg-muted"
+                                onClick={() => useMedicineShortcut(shortcut)}
+                                title={shortcut.brandName || shortcut.genericName}
+                              >
+                                {shortcut.brandName || shortcut.genericName}
+                              </button>
+                              <button
+                                type="button"
+                                className="min-h-7 px-1 text-amber-500 hover:text-amber-600"
+                                aria-label={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
+                                title={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
+                                onClick={() => toggleMedicineFavorite(shortcut.key)}
+                              >
+                                <Star className={cn("h-2.5 w-2.5", shortcut.isFavorite && "fill-current")} />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
