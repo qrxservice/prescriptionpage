@@ -2772,7 +2772,7 @@ export default function NewPrescriptionPage() {
                     {(isBn ? ADVICE_CHIPS_BN : ADVICE_CHIPS_EN).map(chip => (
                       <button key={chip} type="button"
                         onClick={() => setAdvice(a => a ? `${a}\n${chip}` : chip)}
-                        className="text-[9px] px-1.5 py-0.5 rounded border bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors">
+                        className="text-xs px-1.5 py-0.5 rounded border bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors">
                         + {chip}
                       </button>
                     ))}
