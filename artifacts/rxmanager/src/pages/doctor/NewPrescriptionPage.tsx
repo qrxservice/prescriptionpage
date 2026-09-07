@@ -1894,7 +1894,7 @@ export default function NewPrescriptionPage() {
       <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
 
         {/* ── LEFT PANEL — Patient Info ──────────────────────────── */}
-        <aside className="flex h-[45vh] w-full flex-col border-r bg-muted/10 shrink-0 overflow-hidden lg:h-auto lg:w-72 xl:w-80">
+        <aside className="flex h-[45vh] w-full flex-col border-r bg-muted/10 shrink-0 overflow-hidden lg:h-auto lg:w-[30%] xl:w-[30%]">
           <ScrollArea className="flex-1">
             <div className="p-2 space-y-1.5 text-xs">
 
@@ -2114,99 +2114,96 @@ export default function NewPrescriptionPage() {
 
               <Separator className="my-1" />
 
-              {/* C/C — collapsible; collapsed by default to keep the left panel short */}
-              <div>
-                <button type="button" onClick={() => setCcOpen(v => !v)}
-                  className="w-full flex items-center justify-between text-[10px] font-bold text-teal-700 dark:text-teal-400">
+              {/* C/C — always visible; the existing open state remains available
+                  for loaded/draft data and is marked when the field is focused. */}
+              <div data-section-open={ccOpen}>
+                <div className="flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
                   <span className="flex items-center gap-1">
                     {L.ccLabel}
                     {patient.cc && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
                   </span>
-                  {ccOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                </button>
-                {ccOpen && (
-                  <>
-                    <div className="flex flex-wrap gap-0.5 mt-1 mb-0.5">
-                      {(templates["cc"] ?? []).slice(0, 4).map(t => (
-                        <button key={t.id} type="button" onClick={() => applyTemplate(t)}
-                          className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 transition-colors">
-                          {t.title}
-                        </button>
-                      ))}
-                    </div>
-                    <Textarea className="text-xs min-h-[56px] resize-none" placeholder={L.ccPlaceholder} value={patient.cc} onChange={e => setPatient(p => ({ ...p, cc: e.target.value }))} />
-                  </>
-                )}
-              </div>
-
-              <Separator className="my-1" />
-
-              {/* O/E — collapsible; collapsed by default to keep the left panel short */}
-              <div>
-                <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => setOeOpen(v => !v)}
-                    className="flex-1 flex items-center justify-between text-[10px] font-bold text-teal-700 dark:text-teal-400">
-                    <span className="flex items-center gap-1">
-                      O/E
-                      {patient.oe && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
-                    </span>
-                    {oeOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                  </button>
-                  {oeOpen && (
-                    <button type="button"
-                      onClick={() => setPatient(p => ({ ...p, oeMode: p.oeMode === "text" ? "box" : "text" }))}
-                      className={cn("text-[9px] px-1.5 py-0.5 rounded border transition-colors shrink-0", patient.oeMode === "box" ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border")}>
-                      {L.box}
-                    </button>
-                  )}
                 </div>
-                {oeOpen && (
-                  <>
-                    <div className="mt-1">
-                      {(templates["oe"] ?? []).slice(0, 2).map(t => (
-                        <button key={t.id} type="button" onClick={() => applyTemplate(t)}
-                          className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 transition-colors mr-0.5 mb-0.5">
-                          {t.title}
-                        </button>
-                      ))}
-                    </div>
-                    <Textarea className="text-xs min-h-[56px] resize-none mt-0.5" placeholder={L.oePlaceholder} value={patient.oe} onChange={e => setPatient(p => ({ ...p, oe: e.target.value }))} />
-                  </>
-                )}
+                <div className="flex flex-wrap gap-0.5 mt-1 mb-0.5">
+                  {(templates["cc"] ?? []).slice(0, 4).map(t => (
+                    <button key={t.id} type="button" onClick={() => applyTemplate(t)}
+                      className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 transition-colors">
+                      {t.title}
+                    </button>
+                  ))}
+                </div>
+                <Textarea
+                  className="text-xs min-h-[56px] resize-none"
+                  placeholder={L.ccPlaceholder}
+                  value={patient.cc}
+                  onFocus={() => setCcOpen(true)}
+                  onChange={e => setPatient(p => ({ ...p, cc: e.target.value }))}
+                />
               </div>
 
               <Separator className="my-1" />
 
-              {/* IX — collapsible; collapsed by default to keep the left panel short */}
-              <div>
-                <button type="button" onClick={() => setIxOpen(v => !v)}
-                  className="w-full flex items-center justify-between text-[10px] font-bold text-teal-700 dark:text-teal-400">
+              {/* O/E — always visible; preserve the existing text/box mode control. */}
+              <div data-section-open={oeOpen}>
+                <div className="flex items-center gap-1">
+                  <span className="flex-1 flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
+                    O/E
+                    {patient.oe && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
+                  </span>
+                  <button type="button"
+                    onClick={() => setPatient(p => ({ ...p, oeMode: p.oeMode === "text" ? "box" : "text" }))}
+                    className={cn("text-[9px] px-1.5 py-0.5 rounded border transition-colors shrink-0", patient.oeMode === "box" ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border")}>
+                    {L.box}
+                  </button>
+                </div>
+                <div className="mt-1">
+                  {(templates["oe"] ?? []).slice(0, 2).map(t => (
+                    <button key={t.id} type="button" onClick={() => applyTemplate(t)}
+                      className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 transition-colors mr-0.5 mb-0.5">
+                      {t.title}
+                    </button>
+                  ))}
+                </div>
+                <Textarea
+                  className="text-xs min-h-[56px] resize-none mt-0.5"
+                  placeholder={L.oePlaceholder}
+                  value={patient.oe}
+                  onFocus={() => setOeOpen(true)}
+                  onChange={e => setPatient(p => ({ ...p, oe: e.target.value }))}
+                />
+              </div>
+
+              <Separator className="my-1" />
+
+              {/* IX — always visible and editable. */}
+              <div data-section-open={ixOpen}>
+                <div className="flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
                   <span className="flex items-center gap-1">
                     {L.ixLabel}
                     {(patient.ixChips.length > 0 || patient.ixCustom) && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
                   </span>
-                  {ixOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                </button>
-                {ixOpen && (
-                  <>
-                    <div className="flex flex-wrap gap-0.5 mt-1">
-                      {IX_CHIPS.map(chip => (
-                        <button key={chip} type="button"
-                          onClick={() => setPatient(p => ({ ...p, ixChips: p.ixChips.includes(chip) ? p.ixChips.filter(x => x !== chip) : [...p.ixChips, chip] }))}
-                          className={cn("text-[9px] px-1.5 py-0.5 rounded border transition-colors", patient.ixChips.includes(chip) ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
-                          {chip}
-                        </button>
-                      ))}
-                    </div>
-                    {(templates["ix"] ?? []).slice(0, 3).map(t => (
-                      <button key={t.id} type="button" onClick={() => applyTemplate(t)}
-                        className="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors mr-0.5 mt-0.5">
-                        {t.title}
-                      </button>
-                    ))}
-                    <Input className="h-6 text-xs mt-1" placeholder={L.ixCustomPlaceholder} value={patient.ixCustom} onChange={e => setPatient(p => ({ ...p, ixCustom: e.target.value }))} />
-                  </>
-                )}
+                </div>
+                <div className="flex flex-wrap gap-0.5 mt-1">
+                  {IX_CHIPS.map(chip => (
+                    <button key={chip} type="button"
+                      onClick={() => setPatient(p => ({ ...p, ixChips: p.ixChips.includes(chip) ? p.ixChips.filter(x => x !== chip) : [...p.ixChips, chip] }))}
+                      className={cn("text-[9px] px-1.5 py-0.5 rounded border transition-colors", patient.ixChips.includes(chip) ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+                {(templates["ix"] ?? []).slice(0, 3).map(t => (
+                  <button key={t.id} type="button" onClick={() => applyTemplate(t)}
+                    className="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors mr-0.5 mt-0.5">
+                    {t.title}
+                  </button>
+                ))}
+                <Input
+                  className="h-6 text-xs mt-1"
+                  placeholder={L.ixCustomPlaceholder}
+                  value={patient.ixCustom}
+                  onFocus={() => setIxOpen(true)}
+                  onChange={e => setPatient(p => ({ ...p, ixCustom: e.target.value }))}
+                />
               </div>
 
               <Separator className="my-1" />
@@ -2223,6 +2220,60 @@ export default function NewPrescriptionPage() {
                   ))}
                 </div>
                 <Textarea className="text-xs min-h-[48px] resize-none mt-0.5" placeholder={L.drugHistoryPlaceholder} value={patient.drugHistory} onChange={e => setPatient(p => ({ ...p, drugHistory: e.target.value }))} />
+              </div>
+
+              <Separator className="my-1" />
+
+              {/* RX QUICK TOOLS — use the same existing template toggle and
+                  medicine shortcut handlers as the main workspace. */}
+              <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-2 dark:border-teal-900 dark:bg-teal-950/20">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-teal-700 dark:text-teal-300">
+                    {isBn ? "প্রেসক্রিপশন টুলস" : "RX QUICK TOOLS"}
+                  </span>
+                  <BookOpen className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 w-full justify-start gap-1.5 bg-background text-xs"
+                  onClick={() => setShowTemplates(v => !v)}
+                >
+                  <BookOpen className="h-3 w-3" />
+                  {L.templates}
+                  <span className="ml-auto text-[10px] text-muted-foreground">{showTemplates ? "−" : "+"}</span>
+                </Button>
+                {visibleMedicineShortcuts.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {isBn ? "সাম্প্রতিক ওষুধ" : "Recent medicines"}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {visibleMedicineShortcuts.map(shortcut => (
+                        <div key={shortcut.key} className="flex max-w-full items-center rounded border border-teal-200 bg-background text-[10px] dark:border-teal-800">
+                          <button
+                            type="button"
+                            className="min-h-7 max-w-[10rem] truncate px-1.5 text-left hover:bg-muted"
+                            onClick={() => useMedicineShortcut(shortcut)}
+                            title={shortcut.brandName || shortcut.genericName}
+                          >
+                            {shortcut.brandName || shortcut.genericName}
+                          </button>
+                          <button
+                            type="button"
+                            className="min-h-7 px-1 text-amber-500 hover:text-amber-600"
+                            aria-label={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
+                            title={shortcut.isFavorite ? L.unfavoriteMedicine : L.favoriteMedicine}
+                            onClick={() => toggleMedicineFavorite(shortcut.key)}
+                          >
+                            <Star className={cn("h-2.5 w-2.5", shortcut.isFavorite && "fill-current")} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
