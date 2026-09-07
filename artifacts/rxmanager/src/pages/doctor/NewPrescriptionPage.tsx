@@ -2635,7 +2635,7 @@ export default function NewPrescriptionPage() {
                         className={cn("text-xs px-3 py-1 rounded border transition-colors", currentMed.durationUnit === "M" && !durationPresetsDB.some(p => p.n === currentMed.durationNum && p.u === "M") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
                         {L.monthUnit}
                       </button>
-                      <span className="text-muted-foreground text-[10px] px-0.5 select-none">|</span>
+                         <span className="text-muted-foreground text-xs px-0.5 select-none">|</span>
                       {durationPresetsDB.map(p => {
                         const active = currentMed.durationNum === p.n && currentMed.durationUnit === p.u;
                         return (
@@ -2850,15 +2850,15 @@ export default function NewPrescriptionPage() {
          <aside className="absolute inset-y-2 left-2 z-40 flex w-[min(30%,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-lg border bg-background shadow-xl" aria-label={L.templates}>
           <div className="px-3 py-2 border-b bg-muted/20">
              <div className="flex flex-wrap items-center justify-between gap-1">
-               <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground shrink-0">{L.templates}</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground shrink-0">{L.templates}</h3>
                <div className="flex flex-wrap items-center justify-end gap-1">
                 <button type="button"
                   onClick={() => { const next = !isManageTemplates; setIsManageTemplates(next); if (next) reloadAllTemplates(); }}
-                  className={cn("text-[10px] flex items-center gap-0.5 px-1 py-0.5 rounded transition-colors", isManageTemplates ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary")}>
+                  className={cn("text-xs flex items-center gap-0.5 px-1 py-0.5 rounded transition-colors", isManageTemplates ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary")}>
                   <Settings2 className="h-3 w-3" />{L.tmplManage}
                 </button>
                 <button type="button" onClick={() => setShowTemplateForm(v => !v)}
-                  className="text-[10px] text-primary hover:text-primary/80 flex items-center gap-0.5">
+                  className="text-xs text-primary hover:text-primary/80 flex items-center gap-0.5">
                   <PlusCircle className="h-3 w-3" />{L.newBtn}
                 </button>
                 <button type="button"
@@ -2868,18 +2868,18 @@ export default function NewPrescriptionPage() {
                     setShowTemplateForm(true);
                     setShowQueue(false);
                   }}
-                  className="text-[10px] text-teal-700 dark:text-teal-300 hover:text-teal-600 flex items-center gap-0.5">
+                  className="text-xs text-teal-700 dark:text-teal-300 hover:text-teal-600 flex items-center gap-0.5">
                   <Save className="h-3 w-3" />{L.saveCurrentTemplate}
                 </button>
                 <button type="button" onClick={() => { setShowQueue(false); setShowTemplates(false); }}
-                  className="text-[10px] text-muted-foreground hover:text-foreground px-1" aria-label="Close">
+                   className="inline-flex h-9 w-9 items-center justify-center rounded-md text-xl leading-none text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Close templates">
                   ×
                 </button>
               </div>
             </div>
           </div>
           <ScrollArea className="flex-1">
-            <div className="p-2 space-y-3 text-xs">
+             <div className="p-2 space-y-3 text-sm">
 
               {/* Queue Summary — enhanced: break/day-end aware, with stats + efficiency */}
               {false && <div className="border rounded bg-background overflow-hidden">
@@ -3059,7 +3059,7 @@ export default function NewPrescriptionPage() {
               {/* New template form */}
               {showTemplateForm && (
                 <div className="border rounded p-2 bg-background space-y-1.5">
-                  <select className="w-full h-6 text-xs border rounded bg-background px-1" value={newTmpl.type} onChange={e => setNewTmpl(t => ({ ...t, type: e.target.value }))}>
+                   <select className="w-full h-6 text-sm border rounded bg-background px-1" value={newTmpl.type} onChange={e => setNewTmpl(t => ({ ...t, type: e.target.value }))}>
                     <option value="advice">{L.tmplAdvice}</option>
                     <option value="cc">{L.tmplCc}</option>
                     <option value="oe">{L.tmplOe}</option>
@@ -3073,8 +3073,8 @@ export default function NewPrescriptionPage() {
                     <option value="followup">{L.tmplFollowup}</option>
                     <option value="full">{L.tmplFull}</option>
                   </select>
-                  <Input className="h-6 text-xs" placeholder={L.tmplTitlePlaceholder} value={newTmpl.title} onChange={e => setNewTmpl(t => ({ ...t, title: e.target.value }))} />
-                  <Input className="h-6 text-xs" placeholder={L.tmplDepartmentPlaceholder} value={newTmpl.department} onChange={e => setNewTmpl(t => ({ ...t, department: e.target.value }))} />
+                   <Input className="h-6 text-sm" placeholder={L.tmplTitlePlaceholder} value={newTmpl.title} onChange={e => setNewTmpl(t => ({ ...t, title: e.target.value }))} />
+                   <Input className="h-6 text-sm" placeholder={L.tmplDepartmentPlaceholder} value={newTmpl.department} onChange={e => setNewTmpl(t => ({ ...t, department: e.target.value }))} />
                   {newTmpl.type === "duration" ? (() => {
                     const _m = newTmpl.content.match(/^(\d+)/);
                     const _num = _m ? _m[1] : "";
@@ -3084,18 +3084,18 @@ export default function NewPrescriptionPage() {
                     const setDur = (n: string, u: "D" | "W" | "M") => setNewTmpl(t => ({ ...t, content: `${n} ${u}` }));
                     return (
                       <div className="flex flex-wrap items-center gap-1 py-1">
-                        <Input type="number" min="1" className="h-7 w-16 text-xs text-center"
+                         <Input type="number" min="1" className="h-7 w-16 text-sm text-center"
                           value={_num} onChange={e => setDur(e.target.value, _unit)} />
                         <button type="button" onClick={() => setDur(_num, "D")}
-                          className={cn("text-xs px-3 py-1 rounded border transition-colors", _unit === "D" && !durationPresetsDB.some(p => p.n === _num && p.u === "D") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
+                           className={cn("text-sm px-3 py-1 rounded border transition-colors", _unit === "D" && !durationPresetsDB.some(p => p.n === _num && p.u === "D") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
                           {L.dayUnit}
                         </button>
                         <button type="button" onClick={() => setDur(_num, "W")}
-                          className={cn("text-xs px-3 py-1 rounded border transition-colors", _unit === "W" && !durationPresetsDB.some(p => p.n === _num && p.u === "W") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
+                           className={cn("text-sm px-3 py-1 rounded border transition-colors", _unit === "W" && !durationPresetsDB.some(p => p.n === _num && p.u === "W") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
                           {L.weekUnit}
                         </button>
                         <button type="button" onClick={() => setDur(_num, "M")}
-                          className={cn("text-xs px-3 py-1 rounded border transition-colors", _unit === "M" && !durationPresetsDB.some(p => p.n === _num && p.u === "M") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
+                           className={cn("text-sm px-3 py-1 rounded border transition-colors", _unit === "M" && !durationPresetsDB.some(p => p.n === _num && p.u === "M") ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
                           {L.monthUnit}
                         </button>
                         <span className="text-muted-foreground text-[10px] px-0.5 select-none">|</span>
@@ -3103,7 +3103,7 @@ export default function NewPrescriptionPage() {
                           const act = _num === p.n && _unit === p.u;
                           return (
                             <button key={p.title} type="button" onClick={() => setDur(p.n, p.u)}
-                              className={cn("text-xs px-2 py-1 rounded border transition-colors", act ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400 hover:text-teal-600")}>
+                               className={cn("text-sm px-2 py-1 rounded border transition-colors", act ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400 hover:text-teal-600")}>
                               {p.title}
                             </button>
                           );
@@ -3114,28 +3114,28 @@ export default function NewPrescriptionPage() {
                     <div className="flex flex-wrap gap-1 py-1">
                       {(templates["timing"] ?? []).map(t => (
                         <button key={t.id} type="button" onClick={() => setNewTmpl(n => ({ ...n, content: t.content }))}
-                          className={cn("text-xs px-2 py-1 rounded border transition-colors", newTmpl.content === t.content ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400 hover:text-teal-600")}>
+                           className={cn("text-sm px-2 py-1 rounded border transition-colors", newTmpl.content === t.content ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400 hover:text-teal-600")}>
                           {t.title}
                         </button>
                       ))}
-                      <Input className="h-7 w-36 text-xs" placeholder={L.customTiming}
+                       <Input className="h-7 w-36 text-sm" placeholder={L.customTiming}
                         value={newTmpl.content}
                         onChange={e => setNewTmpl(n => ({ ...n, content: e.target.value }))} />
                     </div>
                   ) : newTmpl.type === "full" ? (
-                    <div className="rounded border border-teal-200 bg-teal-50/60 px-2 py-1.5 text-[10px] text-teal-800 dark:border-teal-900 dark:bg-teal-950/20 dark:text-teal-200">
+                     <div className="rounded border border-teal-200 bg-teal-50/60 px-2 py-1.5 text-xs text-teal-800 dark:border-teal-900 dark:bg-teal-950/20 dark:text-teal-200">
                       {L.saveCurrentTemplate}
                     </div>
                   ) : (
-                    <Textarea className="text-xs min-h-[48px] resize-none" placeholder={L.tmplContentPlaceholder} value={newTmpl.content} onChange={e => setNewTmpl(t => ({ ...t, content: e.target.value }))} />
+                     <Textarea className="text-sm min-h-[48px] resize-none" placeholder={L.tmplContentPlaceholder} value={newTmpl.content} onChange={e => setNewTmpl(t => ({ ...t, content: e.target.value }))} />
                   )}
-                  <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer">
+                   <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
                     <input type="checkbox" checked={newTmpl.isFavorite} onChange={e => setNewTmpl(t => ({ ...t, isFavorite: e.target.checked }))} />
                     {L.markFavorite}
                   </label>
                   <div className="flex gap-1">
-                    <Button size="sm" className="h-6 text-xs flex-1 bg-teal-600 hover:bg-teal-700" onClick={saveTemplate}>{editingTmplId ? L.update : L.save}</Button>
-                    <Button size="sm" variant="outline" className="h-6 text-xs" onClick={() => { setShowTemplateForm(false); setEditingTmplId(null); setNewTmpl({ type: "advice", title: "", content: "", department: "", isFavorite: false }); }}>{L.cancel}</Button>
+                     <Button size="sm" className="h-6 text-sm flex-1 bg-teal-600 hover:bg-teal-700" onClick={saveTemplate}>{editingTmplId ? L.update : L.save}</Button>
+                     <Button size="sm" variant="outline" className="h-6 text-sm" onClick={() => { setShowTemplateForm(false); setEditingTmplId(null); setNewTmpl({ type: "advice", title: "", content: "", department: "", isFavorite: false }); }}>{L.cancel}</Button>
                   </div>
                 </div>
               )}
@@ -3144,9 +3144,9 @@ export default function NewPrescriptionPage() {
               {isManageTemplates && (
                 <div className="border rounded bg-background p-2 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{L.tmplManage}</span>
+                   <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{L.tmplManage}</span>
                     <button type="button" onClick={restoreDefaultTemplates}
-                      className="text-[9px] text-primary hover:underline flex items-center gap-0.5">
+                       className="text-[11px] text-primary hover:underline flex items-center gap-0.5">
                       <RefreshCw className="h-2.5 w-2.5" />{L.tmplRestoreDefaults}
                     </button>
                   </div>
@@ -3160,12 +3160,12 @@ export default function NewPrescriptionPage() {
                       : typeKey === "followup" ? L.tmplFollowup : typeKey === "full" ? L.tmplFull : L.tmplTreatment;
                     return (
                       <div key={typeKey}>
-                        <div className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5 border-b pb-0.5">{typeLabel}</div>
+                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5 border-b pb-0.5">{typeLabel}</div>
                         <div className="space-y-0.5">
                           {items.map((t: any, i: number) => (
-                            <div key={t.id} className={cn("flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] hover:bg-muted/40", t.isHidden && "opacity-40")}>
+                             <div key={t.id} className={cn("flex items-center gap-0.5 rounded px-1 py-0.5 text-xs hover:bg-muted/40", t.isHidden && "opacity-40")}>
                               <span className="flex-1 truncate">{t.title}</span>
-                              {t.isHidden && <span className="text-[8px] border rounded px-0.5 text-muted-foreground shrink-0">hidden</span>}
+                               {t.isHidden && <span className="text-[10px] border rounded px-0.5 text-muted-foreground shrink-0">hidden</span>}
                               <div className="flex items-center gap-0.5 shrink-0">
                                 <button type="button" title={t.isHidden ? L.tmplShow : L.tmplHide}
                                   onClick={() => hideTemplate(t, !t.isHidden)}
@@ -3414,7 +3414,7 @@ function TemplateSection({ title, icon, items, onApply, emptyHint, isSearch, sea
   return (
     <div>
       <button type="button" onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground mb-1">
+         className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground mb-1">
         <span>{icon && `${icon} `}{title}</span>
         {open ? <ChevronUp className="h-2.5 w-2.5" /> : <ChevronDown className="h-2.5 w-2.5" />}
       </button>
@@ -3422,20 +3422,20 @@ function TemplateSection({ title, icon, items, onApply, emptyHint, isSearch, sea
         <div className="space-y-0.5">
           {isSearch && (
             <div className="space-y-0.5">
-              <Input className="h-6 text-[10px]" placeholder={searchPlaceholder ?? "Generic name..."} value={q} onChange={e => searchMedGeneric(e.target.value)} />
+               <Input className="h-6 text-xs" placeholder={searchPlaceholder ?? "Generic name..."} value={q} onChange={e => searchMedGeneric(e.target.value)} />
               {medRes.map(s => (
                 <button key={s.id} type="button"
                   onClick={() => { if (onSelectMed) onSelectMed(s); setMedRes([]); setQ(""); }}
-                  className="w-full text-left px-1.5 py-0.5 rounded hover:bg-muted text-[10px] transition-colors">
+                   className="w-full text-left px-1.5 py-0.5 rounded hover:bg-muted text-xs transition-colors">
                   <div className="font-medium">{s.brandName} {s.strength}</div>
                   <div className="text-muted-foreground">{s.genericName}{s.dosageForm ? ` · ${s.dosageForm}` : ""}</div>
-                  {s.manufacturer && <div className="text-muted-foreground text-[10px] italic">{s.manufacturer}</div>}
+                   {s.manufacturer && <div className="text-muted-foreground text-xs italic">{s.manufacturer}</div>}
                 </button>
               ))}
             </div>
           )}
           {!isSearch && items.length === 0 && emptyHint && (
-            <p className="text-[10px] text-muted-foreground italic">{emptyHint}</p>
+             <p className="text-xs text-muted-foreground italic">{emptyHint}</p>
           )}
           {items.map(t => {
             const isCustom = t.id > 0;
@@ -3444,12 +3444,12 @@ function TemplateSection({ title, icon, items, onApply, emptyHint, isSearch, sea
             return (
               <div key={t.id} className="group flex items-center gap-1 rounded border border-transparent hover:border-teal-200 hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-colors">
                 <button type="button" onClick={() => onApply(t)}
-                  className="flex-1 min-w-0 text-left px-2 py-1.5 text-[10px] hover:text-teal-700 transition-colors flex items-center gap-1">
+                   className="flex-1 min-w-0 text-left px-2 py-1.5 text-xs hover:text-teal-700 transition-colors flex items-center gap-1">
                   {t.isFavorite
                     ? <Star className="h-2.5 w-2.5 shrink-0 fill-amber-400 text-amber-400" />
                     : <BookOpen className="h-2.5 w-2.5 shrink-0 opacity-60" />}
                   <span className="truncate">{t.title}</span>
-                  {t.department && <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{t.department}</span>}
+                   {t.department && <span className="ml-auto text-[11px] text-muted-foreground shrink-0">{t.department}</span>}
                 </button>
                 {hasControls && (
                   <div className="flex items-center gap-0.5 pr-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
