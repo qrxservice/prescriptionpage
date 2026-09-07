@@ -1,0 +1,196 @@
+DoctorX — STEP 2: PRESCRIPTION PAGE ANALYSIS & SAFE VERIFICATION
+
+IMPORTANT:
+The focused Prescription workspace has already been prepared.
+
+DO NOT import the full DoctorX project.
+
+DO NOT import unrelated modules.
+
+DO NOT make any UI redesign or feature implementation yet.
+
+This step is ONLY to inspect and understand the existing Prescription page before Phase 1 changes.
+
+==================================================
+PRIMARY FILE
+==================================================
+
+artifacts/rxmanager/src/pages/doctor/NewPrescriptionPage.tsx
+
+==================================================
+STEP 2 GOAL
+==================================================
+
+Carefully analyze the CURRENT implementation of:
+
+NewPrescriptionPage.tsx
+
+and identify the existing structure, state, handlers, API hooks, and UI sections.
+
+We need to prepare for a future Prescription UI update WITHOUT breaking existing functionality.
+
+==================================================
+INSPECT THE EXISTING PAGE
+==================================================
+
+Analyze and report the existing implementation of:
+
+1. Patient loading/search
+2. Patient information
+3. Vitals
+4. Chief Complaint (C/C)
+5. On Examination (O/E)
+6. Investigation (I/X)
+7. Drug History
+8. Medicine search/autocomplete
+9. Medicine selection
+10. Dose
+11. Duration
+12. Timing
+13. Instructions
+14. Added medicine list
+15. Advice
+16. Treatment Note
+17. Diagnosis
+18. Follow-up
+19. Rx Templates
+20. Queue Summary
+21. Queue controls
+22. Break functionality
+23. Save Draft
+24. Save Only
+25. Save & Print
+26. Preview
+27. Print/PDF
+28. Header Settings
+29. Page Setup
+30. Language
+31. Theme
+
+==================================================
+VERY IMPORTANT
+==================================================
+
+DO NOT change any of the above.
+
+DO NOT rewrite any code.
+
+DO NOT refactor.
+
+DO NOT redesign.
+
+DO NOT modify JSX.
+
+DO NOT modify CSS.
+
+DO NOT add new features.
+
+DO NOT remove anything.
+
+DO NOT modify API calls.
+
+DO NOT modify generated API files.
+
+DO NOT modify database behavior.
+
+==================================================
+TRACE IMPORTANT CONNECTIONS
+==================================================
+
+For NewPrescriptionPage.tsx, identify:
+
+A. State variables
+- important useState variables
+- form state
+- medicine state
+- patient state
+- queue state
+- template state
+
+B. API hooks/functions
+- which generated hooks are used
+- what each one is used for
+
+C. Event handlers
+- medicine add handler
+- medicine remove handler
+- save handlers
+- print handlers
+- template handlers
+- queue handlers
+- break handlers
+
+D. UI structure
+Describe the current page layout from top to bottom.
+
+==================================================
+DEPENDENCY CHECK
+==================================================
+
+Check whether the current focused source set is sufficient to:
+
+1. Read and safely modify NewPrescriptionPage.tsx
+2. Preserve existing logic
+3. Preserve existing API hook references
+
+If something absolutely required is missing, DO NOT automatically import a large dependency tree.
+
+Instead, report:
+
+- exact missing file
+- why it is required
+- whether it is directly related to the Prescription page
+
+==================================================
+NO IMPLEMENTATION
+==================================================
+
+This is an ANALYSIS ONLY step.
+
+Do not make any source code changes.
+
+Do not create mock APIs.
+
+Do not replace existing functionality.
+
+Do not create a new Prescription page.
+
+Do not simplify the existing page.
+
+==================================================
+FINAL REPORT
+==================================================
+
+STOP after analysis and report ONLY:
+
+1. Current page layout from top to bottom
+
+2. Major functional sections found
+
+3. Important state variables and their purpose
+
+4. API hooks/functions currently used and their purpose
+
+5. Important event handlers and their purpose
+
+6. How medicine search and medicine addition currently work
+
+7. How Rx Templates currently work
+
+8. How Queue and Break functionality currently work
+
+9. How Save / Preview / Print currently work
+
+10. Whether the focused workspace contains enough source files for the next UI modification phase
+
+11. Any exact missing dependency, if applicable
+
+12. Recommended SAFE boundary for Phase 1 changes
+
+IMPORTANT:
+
+DO NOT IMPLEMENT PHASE 1.
+
+DO NOT MODIFY ANY FILE.
+
+STOP and wait for my next instruction.

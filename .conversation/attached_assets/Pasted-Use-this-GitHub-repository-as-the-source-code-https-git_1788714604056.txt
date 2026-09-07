@@ -1,0 +1,230 @@
+Use this GitHub repository as the source code:
+
+https://github.com/qrxservice/doctorxrepaire3
+
+==================================================
+DoctorX — STEP 1: FOCUSED PRESCRIPTION WORKSPACE PREPARATION
+==================================================
+
+IMPORTANT:
+
+DO NOT import, scan, index, analyze, rebuild, or modify the entire DoctorX project.
+
+We are intentionally creating a LOW-COST focused workspace because Replit Agent credits are limited.
+
+The GitHub repository above is the source of truth.
+
+==================================================
+GOAL
+==================================================
+
+Prepare the smallest possible focused workspace required to work on the DoctorX Prescription module.
+
+DO NOT make any code changes yet.
+
+DO NOT implement any new feature.
+
+DO NOT redesign anything.
+
+This step is ONLY for identifying and preparing the required source dependency chain for the Prescription page.
+
+==================================================
+PRIMARY FILE
+==================================================
+
+The primary file is:
+
+artifacts/rxmanager/src/pages/doctor/NewPrescriptionPage.tsx
+
+This is the main DoctorX Prescription page.
+
+==================================================
+DEPENDENCY ANALYSIS
+==================================================
+
+Before importing or copying anything:
+
+1. Inspect ONLY the imports used by:
+
+   artifacts/rxmanager/src/pages/doctor/NewPrescriptionPage.tsx
+
+2. Trace ONLY the local dependencies actually required for this page.
+
+3. Import/include the minimum necessary source files.
+
+4. Stop dependency traversal when additional dependencies are unrelated to the Prescription page.
+
+5. DO NOT recursively scan the entire repository.
+
+Use the smallest possible source set.
+
+==================================================
+INCLUDE ONLY WHAT IS REQUIRED
+==================================================
+
+Preserve the dependency chain required for the existing:
+
+- Prescription UI
+- Patient search/load
+- Patient information
+- Vitals
+- C/C
+- O/E
+- I/X
+- Drug History
+- Existing medicine search/autocomplete
+- Medicine selection
+- Dose
+- Duration
+- Timing
+- Instructions
+- Added medicines
+- Advice
+- Treatment Note
+- Diagnosis
+- Follow-up
+- Queue Summary
+- Queue controls
+- Break status/functionality
+- Existing Rx Template functionality
+- Save Draft
+- Save Only
+- Save & Print
+- Preview
+- Print/PDF
+- Header Settings
+- Page Setup
+- Language
+- Theme
+
+Include ONLY the source files actually required by NewPrescriptionPage.tsx for these existing features.
+
+This may include:
+
+- directly imported components
+- required hooks
+- required local types
+- required API/client helpers
+- medicine-related source required by the existing medicine search
+- Rx Template-related source required by the existing Prescription page
+- queue-related source required by the existing Prescription page
+- specific shared UI components required for compilation
+
+If a shared UI component is required, include ONLY that specific component.
+
+DO NOT import the complete UI library.
+
+==================================================
+MEDICINE SEARCH
+==================================================
+
+The existing medicine search/autocomplete must be preserved.
+
+DO NOT replace it with a mock.
+
+DO NOT remove it.
+
+DO NOT modify its API.
+
+Only preserve/import the dependency chain that is genuinely required by the existing Prescription page.
+
+==================================================
+RX TEMPLATE SYSTEM
+==================================================
+
+The existing Rx Template system must remain available.
+
+Later we may modify or reposition its UI, but NOT now.
+
+Import/include ONLY the template-related source actually required by NewPrescriptionPage.tsx.
+
+DO NOT import the entire template management or admin system.
+
+==================================================
+QUEUE
+==================================================
+
+The existing Queue Summary and Break functionality must remain available.
+
+Import/include ONLY the queue-related source actually required by NewPrescriptionPage.tsx.
+
+DO NOT import unrelated queue pages, displays, dashboards, or modules.
+
+==================================================
+DO NOT IMPORT
+==================================================
+
+DO NOT import or copy:
+
+- the full monorepo
+- unrelated patient pages
+- dashboard pages
+- admin pages
+- pharmacy pages
+- unrelated doctor pages
+- authentication pages unless absolutely required
+- unrelated backend routes
+- unrelated database schemas
+- unrelated assets
+- unrelated modules
+- production deployment files
+- node_modules
+- build/dist output
+- logs
+- cache
+- Git history
+- the full backend
+- the complete DoctorX repository
+
+DO NOT clone or prepare the entire repository as a working project if a smaller focused source set can be used.
+
+==================================================
+NO CODE CHANGES
+==================================================
+
+For STEP 1, DO NOT:
+
+- modify JSX
+- modify TypeScript logic
+- modify CSS
+- redesign UI
+- change layout
+- add Share
+- add new features
+- fix bugs
+- refactor code
+- change database
+- change APIs
+- change permissions
+- remove functionality
+- replace existing functionality with mocks
+
+This step is ONLY source preparation and dependency identification.
+
+==================================================
+FINAL REPORT
+==================================================
+
+After completing the focused workspace preparation, STOP.
+
+Do NOT start implementation.
+
+Report ONLY:
+
+1. Primary file prepared/imported
+
+2. Every additional source file included
+
+3. For each additional file, explain briefly why it is required
+
+4. Approximate total number of source files included
+
+5. Confirm clearly that the full DoctorX project was NOT imported
+
+6. Confirm clearly that NO existing code or functionality was changed
+
+7. Mention any dependency that could not be isolated without requiring additional files
+
+STOP after the report.
+
+WAIT FOR MY NEXT INSTRUCTION.
