@@ -680,6 +680,9 @@ export default function NewPrescriptionPage() {
       indicator: "+",
     },
   ];
+  const savePrintLabel = editingId != null ? (isBn ? "আপডেট ও প্রিন্ট" : "Update & Print") : L.savePrint;
+  const saveOnlyLabel = editingId != null ? (isBn ? "আপডেট" : "Update") : L.saveOnly;
+  const saveDraftLabel = editingId != null ? (isBn ? "ড্রাফট আপডেট" : "Update Draft") : L.saveDraft;
 
   // ── Doctor status from queue data (new fields added to GET /queue)
   const qDoctorStatus = (queueData as any)?.doctorStatus ?? null;
@@ -1952,13 +1955,13 @@ export default function NewPrescriptionPage() {
             </Badge>
           )}
           <Button size="sm" className="h-7 px-2 text-xs gap-1 bg-teal-600 hover:bg-teal-700" onClick={() => handleSave(true, "final")} disabled={createRx.isPending || updateRx.isPending}>
-            <Printer className="h-3 w-3" />{L.savePrint}
+            <Printer className="h-3 w-3" />{savePrintLabel}
           </Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "draft")} disabled={createRx.isPending || updateRx.isPending}>
-            <Save className="h-3 w-3" />{L.saveDraft}
+            <Save className="h-3 w-3" />{saveDraftLabel}
           </Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
-            {L.saveOnly}
+            {saveOnlyLabel}
           </Button>
           <Button
             type="button"
@@ -2866,13 +2869,13 @@ export default function NewPrescriptionPage() {
               {/* Save buttons (bottom CTA) */}
               <div className="flex gap-2 pb-4">
                 <Button className="flex-1 bg-teal-600 hover:bg-teal-700" onClick={() => handleSave(true, "final")} disabled={createRx.isPending || updateRx.isPending}>
-                  <Printer className="h-4 w-4 mr-2" />{L.savePrint}
+                  <Printer className="h-4 w-4 mr-2" />{savePrintLabel}
                 </Button>
                 <Button variant="outline" className="flex-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
-                  {L.saveOnly}
+                  {saveOnlyLabel}
                 </Button>
                 <Button variant="outline" onClick={() => handleSave(false, "draft")} disabled={createRx.isPending || updateRx.isPending}>
-                  <Save className="h-4 w-4 mr-2" />{L.saveDraft}
+                  <Save className="h-4 w-4 mr-2" />{saveDraftLabel}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${patient.name || "Patient"} — ${diagnosis || L.diagnosisDx}`)}`, "_blank", "noopener,noreferrer")}>
                   Share
