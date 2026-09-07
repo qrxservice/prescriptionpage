@@ -2147,6 +2147,11 @@ export default function NewPrescriptionPage() {
                   onFocus={() => setCcOpen(true)}
                   onChange={e => setPatient(p => ({ ...p, cc: e.target.value }))}
                 />
+                <div className="mt-1 flex justify-end">
+                  <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                    <Save className="h-3 w-3" />{L.save}
+                  </Button>
+                </div>
               </div>
 
               <Separator className="my-1" />
@@ -2179,6 +2184,11 @@ export default function NewPrescriptionPage() {
                   onFocus={() => setOeOpen(true)}
                   onChange={e => setPatient(p => ({ ...p, oe: e.target.value }))}
                 />
+                <div className="mt-1 flex justify-end">
+                  <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                    <Save className="h-3 w-3" />{L.save}
+                  </Button>
+                </div>
               </div>
 
               <Separator className="my-1" />
@@ -2213,6 +2223,11 @@ export default function NewPrescriptionPage() {
                   onFocus={() => setIxOpen(true)}
                   onChange={e => setPatient(p => ({ ...p, ixCustom: e.target.value }))}
                 />
+                <div className="mt-1 flex justify-end">
+                  <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                    <Save className="h-3 w-3" />{L.save}
+                  </Button>
+                </div>
               </div>
 
               <Separator className="my-1" />
@@ -2229,6 +2244,11 @@ export default function NewPrescriptionPage() {
                   ))}
                 </div>
                 <Textarea className="text-sm min-h-[48px] resize-none mt-0.5" placeholder={L.drugHistoryPlaceholder} value={patient.drugHistory} onChange={e => setPatient(p => ({ ...p, drugHistory: e.target.value }))} />
+                <div className="mt-1 flex justify-end">
+                  <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                    <Save className="h-3 w-3" />{L.save}
+                  </Button>
+                </div>
               </div>
 
               <Separator className="my-1" />
@@ -2590,6 +2610,11 @@ export default function NewPrescriptionPage() {
                   <div>
                     <label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{L.instructionsOptional}</label>
                     <Textarea className="text-xs min-h-[40px] resize-none mt-0.5" placeholder={L.instructionsPlaceholder} value={currentMed.instructions} onChange={e => setCurrentMed(m => ({ ...m, instructions: e.target.value }))} />
+                    <div className="mt-1 flex justify-end">
+                      <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                        <Save className="h-3 w-3" />{L.save}
+                      </Button>
+                    </div>
                   </div>
 
                   {/* ADD button */}
@@ -2658,6 +2683,11 @@ export default function NewPrescriptionPage() {
                       </button>
                     ))}
                   </div>
+                  <div className="flex justify-end">
+                    <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                      <Save className="h-3 w-3" />{L.save}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -2675,6 +2705,11 @@ export default function NewPrescriptionPage() {
                         Template · {t.title}
                       </button>
                     ))}
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                      <Save className="h-3 w-3" />{L.save}
+                    </Button>
                   </div>
                 </div>
               </div>
