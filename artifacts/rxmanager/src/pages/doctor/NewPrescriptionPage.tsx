@@ -1887,6 +1887,15 @@ export default function NewPrescriptionPage() {
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
             {L.saveOnly}
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1"
+            onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${patient.name || "Patient"} — ${diagnosis || L.diagnosisDx}`)}`, "_blank", "noopener,noreferrer")}
+          >
+            Share
+          </Button>
         </div>
       </header>
 
@@ -2117,7 +2126,7 @@ export default function NewPrescriptionPage() {
               {/* C/C — always visible; the existing open state remains available
                   for loaded/draft data and is marked when the field is focused. */}
               <div data-section-open={ccOpen}>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
+                <div className="flex items-center gap-1 text-xs font-bold text-teal-700 dark:text-teal-400">
                   <span className="flex items-center gap-1">
                     {L.ccLabel}
                     {patient.cc && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
@@ -2132,7 +2141,7 @@ export default function NewPrescriptionPage() {
                   ))}
                 </div>
                 <Textarea
-                  className="text-xs min-h-[56px] resize-none"
+                  className="text-sm min-h-[56px] resize-none"
                   placeholder={L.ccPlaceholder}
                   value={patient.cc}
                   onFocus={() => setCcOpen(true)}
@@ -2145,7 +2154,7 @@ export default function NewPrescriptionPage() {
               {/* O/E — always visible; preserve the existing text/box mode control. */}
               <div data-section-open={oeOpen}>
                 <div className="flex items-center gap-1">
-                  <span className="flex-1 flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
+                  <span className="flex-1 flex items-center gap-1 text-xs font-bold text-teal-700 dark:text-teal-400">
                     O/E
                     {patient.oe && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
                   </span>
@@ -2164,7 +2173,7 @@ export default function NewPrescriptionPage() {
                   ))}
                 </div>
                 <Textarea
-                  className="text-xs min-h-[56px] resize-none mt-0.5"
+                  className="text-sm min-h-[56px] resize-none mt-0.5"
                   placeholder={L.oePlaceholder}
                   value={patient.oe}
                   onFocus={() => setOeOpen(true)}
@@ -2176,7 +2185,7 @@ export default function NewPrescriptionPage() {
 
               {/* IX — always visible and editable. */}
               <div data-section-open={ixOpen}>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-teal-700 dark:text-teal-400">
+                <div className="flex items-center gap-1 text-xs font-bold text-teal-700 dark:text-teal-400">
                   <span className="flex items-center gap-1">
                     {L.ixLabel}
                     {(patient.ixChips.length > 0 || patient.ixCustom) && <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />}
@@ -2198,7 +2207,7 @@ export default function NewPrescriptionPage() {
                   </button>
                 ))}
                 <Input
-                  className="h-6 text-xs mt-1"
+                  className="h-7 text-sm mt-1"
                   placeholder={L.ixCustomPlaceholder}
                   value={patient.ixCustom}
                   onFocus={() => setIxOpen(true)}
@@ -2210,7 +2219,7 @@ export default function NewPrescriptionPage() {
 
               {/* Drug History */}
               <div>
-                <label className="text-[10px] font-bold text-teal-700 dark:text-teal-400">{L.drugHistory}</label>
+                <label className="text-xs font-bold text-teal-700 dark:text-teal-400">{L.drugHistory}</label>
                 <div className="mt-1">
                   {(templates["drugHistory"] ?? []).slice(0, 3).map(t => (
                     <button key={t.id} type="button" onClick={() => applyTemplate(t)}
@@ -2219,7 +2228,7 @@ export default function NewPrescriptionPage() {
                     </button>
                   ))}
                 </div>
-                <Textarea className="text-xs min-h-[48px] resize-none mt-0.5" placeholder={L.drugHistoryPlaceholder} value={patient.drugHistory} onChange={e => setPatient(p => ({ ...p, drugHistory: e.target.value }))} />
+                <Textarea className="text-sm min-h-[48px] resize-none mt-0.5" placeholder={L.drugHistoryPlaceholder} value={patient.drugHistory} onChange={e => setPatient(p => ({ ...p, drugHistory: e.target.value }))} />
               </div>
 
               <Separator className="my-1" />
@@ -2326,10 +2335,79 @@ export default function NewPrescriptionPage() {
                 ) : null}
               </div>
 
+              {/* ── WIDE QUEUE SUMMARY HEADER ───────────────────────── */}
+              <div className="border rounded-lg bg-background overflow-hidden shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-teal-600/10">
+                  <span className="text-xs font-bold uppercase tracking-wide text-teal-700 dark:text-teal-400">{L.queueSummary}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn("text-[10px] font-medium px-1.5 rounded-full border",
+                      isDayEnded ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:border-red-800"
+                        : isOnBreak ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800"
+                        : "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:border-green-800"
+                    )}>
+                      {isDayEnded ? L.statusDayEnded : isOnBreak ? L.statusOnBreak : L.statusAvailable}
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-medium">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />{L.liveTag}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 items-center p-2 border-b">
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs px-2"
+                    onClick={() => queueAction("next")}
+                    disabled={isOnBreak || isDayEnded || callNext.isPending || (queueWaiting.length === 0 && !queueServing)}
+                  >
+                    <ChevronRight className="h-3 w-3 mr-0.5" />{L.next}
+                  </Button>
+                  {queueServing && <>
+                    <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => queueAction("seen", queueServing.id)}>
+                      <UserCheck className="h-3 w-3 mr-0.5" />{L.seen}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => queueAction("skip", queueServing.id)}>
+                      <SkipForward className="h-3 w-3 mr-0.5" />{L.skip}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => queueAction("recall", queueServing.id)}>
+                      <RotateCcw className="h-3 w-3 mr-0.5" />{L.recall}
+                    </Button>
+                  </>}
+                  {queueWaiting[0] && <span className="text-xs text-muted-foreground">{L.nextColon} #{queueWaiting[0].serialNo} {queueWaiting[0].patientName}</span>}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 p-2">
+                  <div className="rounded bg-teal-600/10 px-2 py-1.5">
+                    <div className="text-[10px] text-muted-foreground truncate">{L.nowServingShort}</div>
+                    <div className="text-base font-bold text-teal-700 dark:text-teal-400 truncate">{queueServing ? `#${queueServing.serialNo}` : "—"}</div>
+                  </div>
+                  <div className="rounded bg-muted px-2 py-1.5">
+                    <div className="text-[10px] text-muted-foreground truncate">{L.nextShort}</div>
+                    <div className="text-base font-bold truncate">{queueWaiting[0] ? `#${queueWaiting[0].serialNo}` : "—"}</div>
+                  </div>
+                  <div className="rounded bg-muted px-2 py-1.5">
+                    <div className="text-[10px] text-muted-foreground">{L.waitingShort}</div>
+                    <div className="text-base font-bold">{queueWaiting.length}</div>
+                  </div>
+                  <div className="rounded bg-green-600/10 px-2 py-1.5">
+                    <div className="text-[10px] text-muted-foreground">{L.completedCount}</div>
+                    <div className="text-base font-bold text-green-700 dark:text-green-400">{qCompleted}</div>
+                  </div>
+                  <div className="rounded bg-muted px-2 py-1.5">
+                    <div className="text-[10px] text-muted-foreground">{L.totalAppts}</div>
+                    <div className="text-base font-bold">{qTotalToday}</div>
+                  </div>
+                  {qAvgConsultMs > 0 && (
+                    <div className="rounded bg-muted/60 px-2 py-1.5">
+                      <div className="text-[10px] text-muted-foreground">{L.avgWaitTime}</div>
+                      <div className="text-sm font-semibold">{Math.round(qAvgConsultMs / 60000)}m</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Diagnosis */}
               <div>
-                <label className="text-[10px] text-muted-foreground font-semibold uppercase">{L.diagnosisDx}</label>
-                <Input className="h-7 text-xs mt-0.5" placeholder={L.diagnosisPlaceholder} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
+                <label className="text-xs text-muted-foreground font-semibold uppercase">{L.diagnosisDx}</label>
+                <Input className="h-8 text-sm mt-0.5" placeholder={L.diagnosisPlaceholder} value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
               </div>
 
               {/* ══ MEDICINE ENTRY CARD ══════════════════════════════ */}
@@ -2623,23 +2701,22 @@ export default function NewPrescriptionPage() {
                 <Button variant="outline" onClick={() => handleSave(false, "draft")} disabled={createRx.isPending || updateRx.isPending}>
                   <Save className="h-4 w-4 mr-2" />{L.saveDraft}
                 </Button>
+                <Button type="button" variant="outline" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${patient.name || "Patient"} — ${diagnosis || L.diagnosisDx}`)}`, "_blank", "noopener,noreferrer")}>
+                  Share
+                </Button>
               </div>
 
             </div>
           </ScrollArea>
         </main>
 
-        {/* ── QUEUE / TEMPLATE OVERLAY ─────────────────────────────── */}
-        {(showQueue || showTemplates) && (
-         <aside className="absolute inset-y-2 right-2 z-40 flex w-[min(24rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-lg border bg-background shadow-xl" aria-label={showQueue && !showTemplates ? L.queueSummary : L.templates}>
+        {/* ── TEMPLATES IN THE LEFT SIDEBAR ─────────────────────────── */}
+        {showTemplates && (
+         <aside className="absolute inset-y-2 left-2 z-40 flex w-[min(30%,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-lg border bg-background shadow-xl" aria-label={L.templates}>
           <div className="px-3 py-2 border-b bg-muted/20">
              <div className="flex flex-wrap items-center justify-between gap-1">
-               <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground shrink-0">{showQueue && !showTemplates ? L.queueSummary : L.templates}</h3>
+               <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground shrink-0">{L.templates}</h3>
                <div className="flex flex-wrap items-center justify-end gap-1">
-                <button type="button" onClick={() => setShowQueue(v => !v)}
-                  className={cn("text-[10px] flex items-center gap-0.5 px-1 py-0.5 rounded transition-colors", showQueue ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary")}>
-                  <Activity className="h-3 w-3" />{L.queueSummary}
-                </button>
                 <button type="button"
                   onClick={() => { const next = !isManageTemplates; setIsManageTemplates(next); if (next) reloadAllTemplates(); }}
                   className={cn("text-[10px] flex items-center gap-0.5 px-1 py-0.5 rounded transition-colors", isManageTemplates ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary")}>
@@ -2670,7 +2747,7 @@ export default function NewPrescriptionPage() {
             <div className="p-2 space-y-3 text-xs">
 
               {/* Queue Summary — enhanced: break/day-end aware, with stats + efficiency */}
-              {showQueue && <div className="border rounded bg-background overflow-hidden">
+              {false && <div className="border rounded bg-background overflow-hidden">
                 <div className="flex flex-wrap gap-1.5 items-center p-2 border-b">
                   {/* Next: disabled on break, day-end, or when no patients remain */}
                   <Button
