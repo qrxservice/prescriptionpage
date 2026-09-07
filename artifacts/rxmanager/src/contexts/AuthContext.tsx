@@ -11,6 +11,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  authError: string | null;
+  retryAuth: () => Promise<unknown>;
   login: (data: LoginInput) => Promise<LoginOtpChallenge | null>;
   verifyOtp: (pendingToken: string, code: string) => Promise<void>;
   resendOtp: (pendingToken: string) => Promise<void>;
@@ -23,7 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem("auth_token"));
   const [, setLocation] = useLocation();
 
-  const { data: user, isLoading: isUserLoading, refetch: refetchUser } = useGetMe({
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error: userError,
+    refetch: refetchUser,
+  } = useGetMe({
     query: {
       queryKey: ["me", token],
       enabled: !!token,
@@ -106,9 +113,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isLoading = isUserLoading && !!token;
+  const authError = userError instanceof Error ? userError.message : null;
 
   return (
-    <AuthContext.Provider value={{ user: user || null, token, isLoading, login, verifyOtp, resendOtp, logout }}>
+    <AuthContext.Provider value={{
+      user: user || null,
+      token,
+      isLoading,
+      authError,
+      retryAuth: refetchUser,
+      login,
+      verifyOtp,
+      resendOtp,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );
