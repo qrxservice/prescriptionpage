@@ -440,14 +440,14 @@ function PrintView({ rx, doctor, settings, qrDataUrl, adminQrEnabled = true, nex
               {rx.chiefComplaint && (
                 <div>
                   <p className="font-semibold text-gray-700">C/C</p>
-                  <p className="whitespace-pre-wrap">{rx.chiefComplaint}</p>
+                  <p className="text-sm whitespace-pre-wrap">{rx.chiefComplaint}</p>
                 </div>
               )}
               {(vitalsLines.length > 0 || rx.examination) && (
                 <div>
                   <p className="font-semibold text-gray-700">O/E</p>
                   {vitalsLines.map((v, i) => (<p key={i} className="leading-snug">{v}</p>))}
-                  {rx.examination && <p className="whitespace-pre-wrap mt-1">{rx.examination}</p>}
+                   {rx.examination && <p className="text-sm whitespace-pre-wrap mt-1">{rx.examination}</p>}
                 </div>
               )}
               {rx.diagnosis && (
@@ -460,7 +460,7 @@ function PrintView({ rx, doctor, settings, qrDataUrl, adminQrEnabled = true, nex
                 <div>
                   <p className="font-semibold text-gray-700">{L.ixShort}</p>
                   {rx.investigations.split(",").map((v: string, i: number) => (
-                    <p key={i}>{v.trim()}</p>
+                     <p key={i} className="text-sm">{v.trim()}</p>
                   ))}
                 </div>
               )}
@@ -468,7 +468,7 @@ function PrintView({ rx, doctor, settings, qrDataUrl, adminQrEnabled = true, nex
                 <div>
                   <p className="font-semibold text-gray-700">{L.advicePrint}</p>
                   {rx.advice.split("\n").filter(Boolean).map((a: string, i: number) => (
-                    <p key={i} className="whitespace-pre-wrap">{a}</p>
+                     <p key={i} className="text-sm whitespace-pre-wrap">{a}</p>
                   ))}
                 </div>
               )}
@@ -495,7 +495,7 @@ function PrintView({ rx, doctor, settings, qrDataUrl, adminQrEnabled = true, nex
               {rx.notes && (
                 <div className="mt-4 text-sm">
                   <p className="font-semibold text-gray-700">{L.treatmentNoteTitle}</p>
-                  <p className="text-gray-700 whitespace-pre-wrap">{rx.notes}</p>
+                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{rx.notes}</p>
                 </div>
               )}
               {rx.followUpDate && (
@@ -2260,7 +2260,7 @@ export default function NewPrescriptionPage() {
                   {IX_CHIPS.map(chip => (
                     <button key={chip} type="button"
                       onClick={() => setPatient(p => ({ ...p, ixChips: p.ixChips.includes(chip) ? p.ixChips.filter(x => x !== chip) : [...p.ixChips, chip] }))}
-                      className={cn("text-[9px] px-1.5 py-0.5 rounded border transition-colors", patient.ixChips.includes(chip) ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
+                       className={cn("text-sm px-1.5 py-0.5 rounded border transition-colors", patient.ixChips.includes(chip) ? "bg-teal-600 text-white border-teal-600" : "bg-background border-border hover:border-teal-400")}>
                       {chip}
                     </button>
                   ))}
@@ -2672,7 +2672,7 @@ export default function NewPrescriptionPage() {
                   {/* Instructions */}
                   <div>
                     <label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{L.instructionsOptional}</label>
-                    <Textarea className="text-xs min-h-[40px] resize-none mt-0.5" placeholder={L.instructionsPlaceholder} value={currentMed.instructions} onChange={e => setCurrentMed(m => ({ ...m, instructions: e.target.value }))} />
+                    <Textarea className="text-sm min-h-[40px] resize-none mt-0.5" placeholder={L.instructionsPlaceholder} value={currentMed.instructions} onChange={e => setCurrentMed(m => ({ ...m, instructions: e.target.value }))} />
                     <div className="mt-1 flex justify-end">
                       <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
                         <Save className="h-3 w-3" />{L.save}
@@ -2767,7 +2767,7 @@ export default function NewPrescriptionPage() {
                   <h3 className="text-xs font-bold text-blue-700 dark:text-blue-300">{L.advice}</h3>
                 </div>
                 <div className="p-2.5 space-y-1.5">
-                  <Textarea className="text-xs min-h-[56px] resize-none" placeholder={L.advicePlaceholder} value={advice} onChange={e => setAdvice(e.target.value)} />
+                  <Textarea className="text-sm min-h-[56px] resize-none" placeholder={L.advicePlaceholder} value={advice} onChange={e => setAdvice(e.target.value)} />
                   <div className="flex flex-wrap gap-1">
                     {(isBn ? ADVICE_CHIPS_BN : ADVICE_CHIPS_EN).map(chip => (
                       <button key={chip} type="button"
@@ -2797,7 +2797,7 @@ export default function NewPrescriptionPage() {
                   <h3 className="text-xs font-bold text-amber-700 dark:text-amber-300">{L.treatmentNote}</h3>
                 </div>
                 <div className="p-2.5 space-y-1.5">
-                  <Textarea className="text-xs min-h-[56px] resize-none" placeholder={L.treatmentPlaceholder} value={treatmentNote} onChange={e => setTreatmentNote(e.target.value)} />
+                  <Textarea className="text-sm min-h-[56px] resize-none" placeholder={L.treatmentPlaceholder} value={treatmentNote} onChange={e => setTreatmentNote(e.target.value)} />
                   <div className="flex flex-wrap gap-1">
                     {(templates["protocol"] ?? []).map(t => (
                       <button key={t.id} type="button" onClick={() => applyTemplate(t)}
