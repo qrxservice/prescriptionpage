@@ -115,6 +115,14 @@ interface FullPrescriptionTemplateData {
 
 type StoredPrescription = Prescription & { drugHistory?: string | null };
 
+const emptyTemplateForm = (type: string = "advice") => ({
+  type,
+  title: "",
+  content: "",
+  department: "",
+  isFavorite: false,
+});
+
 interface PatientState {
   name: string; age: string; ageUnit: string; sex: string;
   phone: string; address: string; regNo: string; date: string;
@@ -641,7 +649,7 @@ export default function NewPrescriptionPage() {
   const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [isManageTemplates, setIsManageTemplates] = useState(false);
   const [allTemplatesGrouped, setAllTemplatesGrouped] = useState<Record<string, any[]>>({});
-  const [newTmpl, setNewTmpl] = useState({ type: "advice", title: "", content: "", department: "", isFavorite: false });
+  const [newTmpl, setNewTmpl] = useState(emptyTemplateForm());
   const [editingTmplId, setEditingTmplId] = useState<number | null>(null);
   // C/C, O/E and IX are collapsed by default to keep the left panel short — they
   // only expand on click, or automatically if a loaded/edited patient already has
@@ -1264,7 +1272,18 @@ export default function NewPrescriptionPage() {
         if (Object.prototype.hasOwnProperty.call(data, "treatmentNote")) setTreatmentNote(data.treatmentNote ?? "");
         if (Object.prototype.hasOwnProperty.call(data, "followUpDate")) setFollowUpDate(data.followUpDate ?? "");
         if (Array.isArray(data.medicines)) {
-          setMedicines(data.medicines.map(m => ({ ...m, id: crypto.randomUUID() })));
+          setMedicines(data.medicines.map(m => ({
+            id: crypto.randomUUID(),
+            brandName: m.brandName ?? "",
+            genericName: m.genericName ?? "",
+            strength: m.strength ?? "",
+            dosageForm: m.dosageForm ?? "",
+            dose: m.dose ?? "",
+            timing: m.timing ?? "",
+            durationNum: m.durationNum ?? "",
+            durationUnit: m.durationUnit === "W" ? "W" : m.durationUnit === "M" ? "M" : "D",
+            instructions: m.instructions ?? "",
+          })));
         }
       } catch {
         toast({ title: L.templateSaveFailed, variant: "destructive" });
@@ -1291,6 +1310,19 @@ export default function NewPrescriptionPage() {
     else if (t.type === "treatment" || t.type === "protocol") setTreatmentNote(n => n ? `${n}\n${t.content}` : t.content);
     else if (t.type === "followup") setFollowUpDate(t.content);
     toast({ title: `${L.templateApplied}: ${t.title}`, duration: 1500 });
+  };
+
+  const openNewTemplate = (type: string = "advice") => {
+    setEditingTmplId(null);
+    setNewTmpl(emptyTemplateForm(type));
+    setShowTemplateForm(true);
+    setShowQueue(false);
+  };
+
+  const cancelTemplateForm = () => {
+    setShowTemplateForm(false);
+    setEditingTmplId(null);
+    setNewTmpl(emptyTemplateForm());
   };
 
   // ── Save template (create or edit)
@@ -1325,17 +1357,16 @@ export default function NewPrescriptionPage() {
       };
       // Builtins have negative IDs — always POST to create a new custom copy when editing them.
       const isBuiltinEdit = editingTmplId !== null && editingTmplId < 0;
-      const res = await fetch(!isBuiltinEdit && editingTmplId ? `/api/rx-templates/${editingTmplId}` : "/api/rx-templates", {
-        method: !isBuiltinEdit && editingTmplId ? "PUT" : "POST",
+      const isEditingCustom = editingTmplId !== null && editingTmplId > 0;
+      const res = await fetch(isEditingCustom && !isBuiltinEdit ? `/api/rx-templates/${editingTmplId}` : "/api/rx-templates", {
+        method: isEditingCustom && !isBuiltinEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text().catch(() => "Save failed"));
-      toast({ title: (!isBuiltinEdit && editingTmplId) ? L.templateUpdated : L.templateSaved });
-      setShowTemplateForm(false);
-      setEditingTmplId(null);
-      setNewTmpl({ type: "advice", title: "", content: "", department: "", isFavorite: false });
-      await reloadTemplates();
+      toast({ title: isEditingCustom ? L.templateUpdated : L.templateSaved });
+      cancelTemplateForm();
+      await Promise.all([reloadTemplates(), reloadAllTemplates()]);
     } catch { toast({ title: L.templateSaveFailed, variant: "destructive" }); }
   };
 
@@ -2771,10 +2802,25 @@ export default function NewPrescriptionPage() {
                             {med.strength && <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{med.strength}</span>}
                             {med.dosageForm && <span className="text-xs text-muted-foreground">{med.dosageForm}</span>}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {med.dose && <span className="font-medium text-foreground">{med.dose}</span>}
-                            {med.timing && <span> · {med.timing}</span>}
-                            {med.durationNum && <span> · {med.durationNum} {med.durationUnit === "D" ? "দিন" : med.durationUnit === "W" ? "সপ্তাহ" : "মাস"}</span>}
+                           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
+                             {med.dose && (
+                               <span>
+                                 <span className="font-semibold text-foreground">{L.dose}:</span> {med.dose}
+                               </span>
+                             )}
+                             {med.dose && med.timing && <span aria-hidden="true">|</span>}
+                             {med.timing && (
+                               <span>
+                                 <span className="font-semibold text-foreground">{L.timing}:</span> {med.timing}
+                               </span>
+                             )}
+                             {med.timing && med.durationNum && <span aria-hidden="true">|</span>}
+                             {med.durationNum && (
+                               <span>
+                                 <span className="font-semibold text-foreground">{L.duration}:</span>{" "}
+                                 {med.durationNum} {med.durationUnit === "D" ? L.dayUnit : med.durationUnit === "W" ? L.weekUnit : L.monthUnit}
+                               </span>
+                             )}
                             {med.instructions && <span className="italic text-muted-foreground"> — {med.instructions}</span>}
                           </div>
                         </div>
@@ -2893,22 +2939,17 @@ export default function NewPrescriptionPage() {
              <div className="flex flex-wrap items-center justify-between gap-1">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground shrink-0">{L.templates}</h3>
                <div className="flex flex-wrap items-center justify-end gap-1">
-                <button type="button"
-                  onClick={() => { const next = !isManageTemplates; setIsManageTemplates(next); if (next) reloadAllTemplates(); }}
+                 <button type="button"
+                   onClick={() => { const next = !isManageTemplates; setIsManageTemplates(next); if (next) reloadAllTemplates(); }}
                   className={cn("text-xs flex items-center gap-0.5 px-1 py-0.5 rounded transition-colors", isManageTemplates ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary")}>
                   <Settings2 className="h-3 w-3" />{L.tmplManage}
                 </button>
-                <button type="button" onClick={() => setShowTemplateForm(v => !v)}
+                 <button type="button" onClick={() => openNewTemplate()}
                   className="text-xs text-primary hover:text-primary/80 flex items-center gap-0.5">
                   <PlusCircle className="h-3 w-3" />{L.newBtn}
                 </button>
                 <button type="button"
-                  onClick={() => {
-                    setEditingTmplId(null);
-                    setNewTmpl({ type: "full", title: "", content: "", department: "", isFavorite: false });
-                    setShowTemplateForm(true);
-                    setShowQueue(false);
-                  }}
+                   onClick={() => openNewTemplate("full")}
                   className="text-xs text-teal-700 dark:text-teal-300 hover:text-teal-600 flex items-center gap-0.5">
                   <Save className="h-3 w-3" />{L.saveCurrentTemplate}
                 </button>
@@ -3174,9 +3215,9 @@ export default function NewPrescriptionPage() {
                     <input type="checkbox" checked={newTmpl.isFavorite} onChange={e => setNewTmpl(t => ({ ...t, isFavorite: e.target.checked }))} />
                     {L.markFavorite}
                   </label>
-                  <div className="flex gap-1">
-                     <Button size="sm" className="h-6 text-sm flex-1 bg-teal-600 hover:bg-teal-700" onClick={saveTemplate}>{editingTmplId ? L.update : L.save}</Button>
-                     <Button size="sm" variant="outline" className="h-6 text-sm" onClick={() => { setShowTemplateForm(false); setEditingTmplId(null); setNewTmpl({ type: "advice", title: "", content: "", department: "", isFavorite: false }); }}>{L.cancel}</Button>
+                   <div className="flex gap-1">
+                      <Button size="sm" className="h-6 text-sm flex-1 bg-teal-600 hover:bg-teal-700" onClick={saveTemplate}>{editingTmplId !== null ? L.update : L.save}</Button>
+                      <Button size="sm" variant="outline" className="h-6 text-sm" onClick={cancelTemplateForm}>{L.cancel}</Button>
                   </div>
                 </div>
               )}
