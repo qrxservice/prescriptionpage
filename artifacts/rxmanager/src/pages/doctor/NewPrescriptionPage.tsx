@@ -587,6 +587,8 @@ export default function NewPrescriptionPage() {
   const [patient, setPatient] = useState<PatientState>(emptyPatient());
   const [currentMed, setCurrentMed] = useState<MedItem>(emptyMed());
   const [medicines, setMedicines] = useState<MedItem[]>([]);
+  const [editingMedicineId, setEditingMedicineId] = useState<string | null>(null);
+  const [draggedMedicineId, setDraggedMedicineId] = useState<string | null>(null);
   const [advice, setAdvice] = useState("");
   const [treatmentNote, setTreatmentNote] = useState("");
   const [followUpDate, setFollowUpDate] = useState("");
@@ -939,6 +941,57 @@ export default function NewPrescriptionPage() {
     setShowSug(false);
     setShowNewMedicineOption(false);
     medInputRef.current?.focus();
+  };
+
+  const editMedicine = (medicine: MedItem) => {
+    suppressNextSearchRef.current = true;
+    setCurrentMed({ ...medicine });
+    setEditingMedicineId(medicine.id);
+    setShowSug(false);
+    setShowNewMedicineOption(false);
+    window.setTimeout(() => medInputRef.current?.focus(), 0);
+  };
+
+  const updateMedicine = () => {
+    if (!editingMedicineId) return;
+    if (!currentMed.brandName.trim() && !currentMed.genericName.trim()) {
+      toast({ title: L.enterMedName, variant: "destructive" }); return;
+    }
+    recordMedicineShortcut(currentMed);
+    setMedicines(items => items.map(item =>
+      item.id === editingMedicineId ? { ...currentMed, id: editingMedicineId } : item,
+    ));
+    setCurrentMed(emptyMed());
+    setEditingMedicineId(null);
+    setMedSug([]);
+    setShowSug(false);
+    setShowNewMedicineOption(false);
+    medInputRef.current?.focus();
+  };
+
+  const moveMedicine = (id: string, direction: -1 | 1) => {
+    setMedicines(items => {
+      const index = items.findIndex(item => item.id === id);
+      const targetIndex = index + direction;
+      if (index < 0 || targetIndex < 0 || targetIndex >= items.length) return items;
+      const next = [...items];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  };
+
+  const dropMedicine = (targetId: string) => {
+    if (!draggedMedicineId || draggedMedicineId === targetId) return;
+    setMedicines(items => {
+      const fromIndex = items.findIndex(item => item.id === draggedMedicineId);
+      const toIndex = items.findIndex(item => item.id === targetId);
+      if (fromIndex < 0 || toIndex < 0) return items;
+      const next = [...items];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(fromIndex < toIndex ? toIndex - 1 : toIndex, 0, moved);
+      return next;
+    });
+    setDraggedMedicineId(null);
   };
 
   const removeMed = (id: string) => setMedicines(m => m.filter(x => x.id !== id));
@@ -1644,6 +1697,8 @@ export default function NewPrescriptionPage() {
     setQrDataUrl(null);
     setPatient(emptyPatient());
     setCurrentMed(emptyMed());
+    setEditingMedicineId(null);
+    setDraggedMedicineId(null);
     setMedicines([]);
     setAdvice("");
     setTreatmentNote("");
@@ -2438,6 +2493,14 @@ export default function NewPrescriptionPage() {
                   <span className="text-[10px] font-medium uppercase tracking-wide text-teal-100">{L.brandName}</span>
                 </div>
                 <div className="p-3 space-y-2.5 bg-background">
+                  {editingMedicineId && (
+                    <div className="flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+                      <span>{isBn ? "ওষুধ সম্পাদনা করা হচ্ছে" : "Editing medicine"}</span>
+                      <button type="button" className="font-medium underline underline-offset-2" onClick={() => { setCurrentMed(emptyMed()); setEditingMedicineId(null); }}>
+                        {isBn ? "বাতিল" : "Cancel"}
+                      </button>
+                    </div>
+                  )}
 
                   {(favoriteMedicineShortcuts.length > 0 || recentMedicineShortcuts.length > 0) && (
                     <div className="space-y-1.5 rounded-md border border-teal-100 bg-teal-50/50 p-2 dark:border-teal-900 dark:bg-teal-950/20">
@@ -2618,9 +2681,10 @@ export default function NewPrescriptionPage() {
                   </div>
 
                   {/* ADD button */}
-                  <button type="button" onClick={addMedicine}
+                  <button type="button" onClick={editingMedicineId ? updateMedicine : addMedicine}
                     className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors">
-                    <Plus className="h-4 w-4" />{L.addMedicineBtn}
+                    {editingMedicineId ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                    {editingMedicineId ? (isBn ? "ওষুধ আপডেট করুন" : "UPDATE MEDICINE") : L.addMedicineBtn}
                   </button>
                 </div>
               </div>
@@ -2635,8 +2699,30 @@ export default function NewPrescriptionPage() {
                   </div>
                   <div className="divide-y">
                     {medicines.map((med, i) => (
-                      <div key={med.id} className="group flex items-start gap-2 rounded-md px-3 py-2.5 transition-colors hover:bg-muted/30">
-                        <span className="text-teal-700 font-bold text-sm w-5 shrink-0 mt-0.5">{i + 1}.</span>
+                      <div
+                        key={med.id}
+                        draggable
+                        onDragStart={event => {
+                          setDraggedMedicineId(med.id);
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setData("text/plain", med.id);
+                        }}
+                        onDragOver={event => {
+                          event.preventDefault();
+                          event.dataTransfer.dropEffect = "move";
+                        }}
+                        onDrop={event => {
+                          event.preventDefault();
+                          dropMedicine(med.id);
+                        }}
+                        onDragEnd={() => setDraggedMedicineId(null)}
+                        className={cn(
+                          "group flex items-start gap-2 rounded-md border border-transparent px-3 py-2.5 transition-colors hover:bg-muted/30",
+                          draggedMedicineId === med.id && "border-dashed border-teal-400 bg-teal-50/50 opacity-60 dark:bg-teal-950/20",
+                        )}
+                      >
+                        <span className="mt-0.5 cursor-grab select-none text-muted-foreground" title={isBn ? "টেনে সাজান" : "Drag to reorder"} aria-label={isBn ? "টেনে সাজান" : "Drag to reorder"}>☰</span>
+                        <span className="text-teal-700 font-bold text-sm w-5 shrink-0 mt-0.5">{String(i + 1).padStart(2, "0")}</span>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap gap-x-1.5 gap-y-0 items-baseline">
                             <span className="font-semibold text-sm">{med.brandName || med.genericName}</span>
@@ -2651,10 +2737,24 @@ export default function NewPrescriptionPage() {
                             {med.instructions && <span className="italic text-muted-foreground"> — {med.instructions}</span>}
                           </div>
                         </div>
-                        <button type="button" onClick={() => removeMed(med.id)}
-                          className="shrink-0 rounded p-1 text-destructive transition-all hover:bg-destructive/10 hover:text-destructive/80 sm:opacity-0 sm:group-hover:opacity-100" aria-label="Remove medicine">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        <div className="flex shrink-0 items-center gap-0.5">
+                          <button type="button" onClick={() => editMedicine(med)}
+                            className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" aria-label={isBn ? "ওষুধ সম্পাদনা" : "Edit medicine"} title={isBn ? "সম্পাদনা" : "Edit"}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button type="button" onClick={() => moveMedicine(med.id, -1)} disabled={i === 0}
+                            className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:invisible" aria-label={isBn ? "উপরে নিন" : "Move up"} title={isBn ? "উপরে নিন" : "Move up"}>
+                            <ArrowUp className="h-3.5 w-3.5" />
+                          </button>
+                          <button type="button" onClick={() => moveMedicine(med.id, 1)} disabled={i === medicines.length - 1}
+                            className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:invisible" aria-label={isBn ? "নিচে নিন" : "Move down"} title={isBn ? "নিচে নিন" : "Move down"}>
+                            <ArrowDown className="h-3.5 w-3.5" />
+                          </button>
+                          <button type="button" onClick={() => removeMed(med.id)}
+                            className="rounded p-1 text-destructive transition-colors hover:bg-destructive/10 hover:text-destructive/80" aria-label="Remove medicine" title="Delete">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
