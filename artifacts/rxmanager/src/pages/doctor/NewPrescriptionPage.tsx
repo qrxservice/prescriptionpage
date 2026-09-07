@@ -2778,7 +2778,7 @@ export default function NewPrescriptionPage() {
                     ))}
                     {(templates["advice"] ?? []).map(t => (
                       <button key={t.id} type="button" onClick={() => applyTemplate(t)}
-                        className="text-[9px] px-1.5 py-0.5 rounded border bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors">
+                         className="text-sm px-1.5 py-0.5 rounded border bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors">
                         Template · {t.title}
                       </button>
                     ))}
