@@ -154,6 +154,27 @@ const emptyMed = (): MedItem => ({
   timing: "ভরা পেটে", instructions: "",
 });
 
+const emptyTemplateMed = (): MedItem => ({
+  id: crypto.randomUUID(), brandName: "", genericName: "",
+  strength: "", dosageForm: "",
+  dose: "1 tablet", durationNum: "5", durationUnit: "D",
+  timing: "1+0+1", instructions: "",
+});
+
+const cloneTemplateMedicines = (items: Array<Partial<MedItem>> = []) =>
+  items.map(m => ({
+    id: crypto.randomUUID(),
+    brandName: m.brandName ?? "",
+    genericName: m.genericName ?? "",
+    strength: m.strength ?? "",
+    dosageForm: m.dosageForm ?? "",
+    dose: m.dose ?? "",
+    timing: m.timing ?? "",
+    durationNum: m.durationNum ?? "",
+    durationUnit: m.durationUnit === "W" ? "W" : m.durationUnit === "M" ? "M" : "D",
+    instructions: m.instructions ?? "",
+  } satisfies MedItem));
+
 /* ── Page label map (en/bn) ─────────────────────────────────────────────
    Universal medical notation (BP, Pulse, C/C, O/E, IX, Dx, Rx, dose/timing
    chips) is intentionally kept identical across languages. */
@@ -650,6 +671,7 @@ export default function NewPrescriptionPage() {
   const [isManageTemplates, setIsManageTemplates] = useState(false);
   const [allTemplatesGrouped, setAllTemplatesGrouped] = useState<Record<string, any[]>>({});
   const [newTmpl, setNewTmpl] = useState(emptyTemplateForm());
+  const [templateMedicines, setTemplateMedicines] = useState<MedItem[]>([]);
   const [editingTmplId, setEditingTmplId] = useState<number | null>(null);
   // C/C, O/E and IX are collapsed by default to keep the left panel short — they
   // only expand on click, or automatically if a loaded/edited patient already has
@@ -1272,18 +1294,7 @@ export default function NewPrescriptionPage() {
         if (Object.prototype.hasOwnProperty.call(data, "treatmentNote")) setTreatmentNote(data.treatmentNote ?? "");
         if (Object.prototype.hasOwnProperty.call(data, "followUpDate")) setFollowUpDate(data.followUpDate ?? "");
         if (Array.isArray(data.medicines)) {
-          setMedicines(data.medicines.map(m => ({
-            id: crypto.randomUUID(),
-            brandName: m.brandName ?? "",
-            genericName: m.genericName ?? "",
-            strength: m.strength ?? "",
-            dosageForm: m.dosageForm ?? "",
-            dose: m.dose ?? "",
-            timing: m.timing ?? "",
-            durationNum: m.durationNum ?? "",
-            durationUnit: m.durationUnit === "W" ? "W" : m.durationUnit === "M" ? "M" : "D",
-            instructions: m.instructions ?? "",
-          })));
+          setMedicines(cloneTemplateMedicines(data.medicines));
         }
       } catch {
         toast({ title: L.templateSaveFailed, variant: "destructive" });
@@ -1315,14 +1326,28 @@ export default function NewPrescriptionPage() {
   const openNewTemplate = (type: string = "advice") => {
     setEditingTmplId(null);
     setNewTmpl(emptyTemplateForm(type));
+    setTemplateMedicines(type === "full" ? cloneTemplateMedicines(medicines) : []);
     setShowTemplateForm(true);
     setShowQueue(false);
+  };
+
+  const updateTemplateMedicine = (id: string, patch: Partial<MedItem>) => {
+    setTemplateMedicines(items => items.map(item => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const addTemplateMedicine = () => {
+    setTemplateMedicines(items => [...items, emptyTemplateMed()]);
+  };
+
+  const removeTemplateMedicine = (id: string) => {
+    setTemplateMedicines(items => items.filter(item => item.id !== id));
   };
 
   const cancelTemplateForm = () => {
     setShowTemplateForm(false);
     setEditingTmplId(null);
     setNewTmpl(emptyTemplateForm());
+    setTemplateMedicines([]);
   };
 
   // ── Save template (create or edit)
@@ -1337,7 +1362,7 @@ export default function NewPrescriptionPage() {
             drugHistory: patient.drugHistory,
           },
           diagnosis,
-          medicines: medicines.map(({ id: _id, ...medicine }) => medicine),
+          medicines: templateMedicines.map(({ id: _id, ...medicine }) => medicine),
           advice,
           treatmentNote,
           followUpDate,
@@ -1373,6 +1398,16 @@ export default function NewPrescriptionPage() {
   const editTemplate = (t: RxTemplate) => {
     setEditingTmplId(t.id);
     setNewTmpl({ type: t.type, title: t.title, content: t.content, department: t.department ?? "", isFavorite: !!t.isFavorite });
+    if (t.type === "full") {
+      try {
+        const data = JSON.parse(t.content) as FullPrescriptionTemplateData;
+        setTemplateMedicines(Array.isArray(data.medicines) ? cloneTemplateMedicines(data.medicines) : []);
+      } catch {
+        setTemplateMedicines([]);
+      }
+    } else {
+      setTemplateMedicines([]);
+    }
     setShowTemplateForm(true);
   };
 
@@ -3141,7 +3176,13 @@ export default function NewPrescriptionPage() {
               {/* New template form */}
               {showTemplateForm && (
                 <div className="border rounded p-2 bg-background space-y-1.5">
-                   <select className="w-full h-6 text-sm border rounded bg-background px-1" value={newTmpl.type} onChange={e => setNewTmpl(t => ({ ...t, type: e.target.value }))}>
+                   <select className="w-full h-6 text-sm border rounded bg-background px-1" value={newTmpl.type} onChange={e => {
+                     const type = e.target.value;
+                     setNewTmpl(t => ({ ...t, type }));
+                     if (type === "full" && templateMedicines.length === 0) {
+                       setTemplateMedicines(cloneTemplateMedicines(medicines));
+                     }
+                   }}>
                     <option value="advice">{L.tmplAdvice}</option>
                     <option value="cc">{L.tmplCc}</option>
                     <option value="oe">{L.tmplOe}</option>
@@ -3204,10 +3245,101 @@ export default function NewPrescriptionPage() {
                         value={newTmpl.content}
                         onChange={e => setNewTmpl(n => ({ ...n, content: e.target.value }))} />
                     </div>
-                  ) : newTmpl.type === "full" ? (
-                     <div className="rounded border border-teal-200 bg-teal-50/60 px-2 py-1.5 text-xs text-teal-800 dark:border-teal-900 dark:bg-teal-950/20 dark:text-teal-200">
-                      {L.saveCurrentTemplate}
-                    </div>
+                   ) : newTmpl.type === "full" ? (
+                     <div className="space-y-1.5 rounded border border-teal-200 bg-teal-50/60 p-1.5 text-teal-900 dark:border-teal-900 dark:bg-teal-950/20 dark:text-teal-100">
+                       <div className="flex items-center justify-between gap-2">
+                         <span className="text-xs font-semibold">{isBn ? "টেমপ্লেটের ওষুধ" : "Template medicines"}</span>
+                         <span className="text-[10px] text-muted-foreground">{templateMedicines.length}</span>
+                       </div>
+                       {templateMedicines.length === 0 && (
+                         <p className="rounded border border-dashed border-teal-300 px-2 py-1 text-xs text-muted-foreground dark:border-teal-800">
+                           {isBn ? "নিচের বোতাম দিয়ে এক বা একাধিক ওষুধ যোগ করুন।" : "Add one or more medicines below."}
+                         </p>
+                       )}
+                       <div className="space-y-1.5">
+                         {templateMedicines.map((med, index) => (
+                           <div key={med.id} className="space-y-1.5 rounded-md border bg-background p-1.5 text-foreground">
+                             <div className="flex items-center gap-1">
+                               <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                                 {index + 1}. {med.brandName || (isBn ? "নতুন ওষুধ" : "New medicine")}
+                               </span>
+                               <button
+                                 type="button"
+                                 onClick={() => removeTemplateMedicine(med.id)}
+                                 className="rounded px-1.5 py-0.5 text-xs text-destructive hover:bg-destructive/10"
+                               >
+                                 {isBn ? "সরান" : "Remove"}
+                               </button>
+                             </div>
+                             <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+                               <Input
+                                 className="h-7 text-sm"
+                                 placeholder={L.medNamePlaceholder}
+                                 value={med.brandName}
+                                 onChange={e => updateTemplateMedicine(med.id, { brandName: e.target.value })}
+                               />
+                               <Input
+                                 className="h-7 text-sm"
+                                 placeholder={L.strengthPlaceholder}
+                                 value={med.strength}
+                                 onChange={e => updateTemplateMedicine(med.id, { strength: e.target.value })}
+                               />
+                               <Input
+                                 className="h-7 text-sm"
+                                 placeholder={L.formPlaceholder}
+                                 value={med.dosageForm}
+                                 onChange={e => updateTemplateMedicine(med.id, { dosageForm: e.target.value })}
+                               />
+                             </div>
+                             <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+                               <label className="space-y-0.5">
+                                 <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{L.dose}</span>
+                                 <Input
+                                   className="h-7 text-sm"
+                                   placeholder="1 tablet"
+                                   value={med.dose}
+                                   onChange={e => updateTemplateMedicine(med.id, { dose: e.target.value })}
+                                 />
+                               </label>
+                               <label className="space-y-0.5">
+                                 <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{L.timing}</span>
+                                 <Input
+                                   className="h-7 text-sm"
+                                   placeholder="1+0+1"
+                                   value={med.timing}
+                                   onChange={e => updateTemplateMedicine(med.id, { timing: e.target.value })}
+                                 />
+                               </label>
+                               <label className="space-y-0.5">
+                                 <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{L.duration}</span>
+                                 <div className="flex gap-1">
+                                   <Input
+                                     type="number"
+                                     min="1"
+                                     className="h-7 min-w-0 flex-1 text-sm"
+                                     placeholder="5"
+                                     value={med.durationNum}
+                                     onChange={e => updateTemplateMedicine(med.id, { durationNum: e.target.value })}
+                                   />
+                                   <select
+                                     className="h-7 w-[4.5rem] rounded border bg-background px-1 text-xs"
+                                     value={med.durationUnit}
+                                     onChange={e => updateTemplateMedicine(med.id, { durationUnit: e.target.value as MedItem["durationUnit"] })}
+                                   >
+                                     <option value="D">{L.dayUnit}</option>
+                                     <option value="W">{L.weekUnit}</option>
+                                     <option value="M">{L.monthUnit}</option>
+                                   </select>
+                                 </div>
+                               </label>
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                       <Button type="button" variant="outline" size="sm" className="h-7 w-full text-xs" onClick={addTemplateMedicine}>
+                         <Plus className="mr-1 h-3 w-3" />{isBn ? "ওষুধ যোগ করুন" : "Add medicine"}
+                       </Button>
+                     </div>
                   ) : (
                      <Textarea className="text-sm min-h-[48px] resize-none" placeholder={L.tmplContentPlaceholder} value={newTmpl.content} onChange={e => setNewTmpl(t => ({ ...t, content: e.target.value }))} />
                   )}
