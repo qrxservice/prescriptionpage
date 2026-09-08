@@ -28,7 +28,7 @@ import {
   Activity, UserCheck, CheckCircle2, SkipForward, RotateCcw, ClipboardList,
   BookOpen, PlusCircle, Settings2, FileCog, Save, Copy, Star, Pencil, FileDown,
   Coffee, Timer, TrendingUp, Upload, FlaskConical,
-  Eye, EyeOff, ArrowUp, ArrowDown, RefreshCw, X,
+  Eye, EyeOff, ArrowUp, ArrowDown, RefreshCw, X, Calculator,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
@@ -91,6 +91,24 @@ type QuickToolDefinition = {
 // Add future clinical calculators here. The generic renderer below handles
 // their fields and output without changes to the prescription page layout.
 const QUICK_TOOL_REGISTRY: QuickToolDefinition[] = [];
+
+type CalculatorField = {
+  key: string;
+  label: string;
+  placeholder?: string;
+};
+
+type CalculatorDefinition = {
+  key: string;
+  label: string;
+  description?: string;
+  fields: CalculatorField[];
+  calculate: (values: Record<string, string>) => string | null;
+};
+
+// Add future calculators here. CalculatorDialog handles their inputs, action,
+// result area, and closing behavior without changes to the prescription page.
+const CALCULATOR_REGISTRY: CalculatorDefinition[] = [];
 
 interface LocalPrescriptionDraft {
   version: 1;
@@ -673,6 +691,7 @@ export default function NewPrescriptionPage() {
   const [patientSearch, setPatientSearch] = useState("");
   const [showQueue, setShowQueue] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [activeCalculatorKey, setActiveCalculatorKey] = useState<string | null>(null);
   const [showQuickTools, setShowQuickTools] = useState(true);
   const [showNewToolNotice, setShowNewToolNotice] = useState(false);
   const [showTemplateForm, setShowTemplateForm] = useState(false);
@@ -702,6 +721,7 @@ export default function NewPrescriptionPage() {
   const queueServing = queueData?.serving?.[0] ?? null;
   const queueWaiting = queueData?.waiting ?? [];
   const allQueue = [...(queueData?.serving ?? []), ...(queueData?.waiting ?? [])];
+  const activeCalculator = CALCULATOR_REGISTRY.find(calculator => calculator.key === activeCalculatorKey) ?? null;
   const quickToolItems = [
     {
       key: "templates",
@@ -2031,6 +2051,34 @@ export default function NewPrescriptionPage() {
              <BookOpen className="h-3 w-3" />
              <span className="hidden sm:inline">{L.templates}</span>
            </Button>
+           <DropdownMenu>
+             <DropdownMenuTrigger asChild>
+               <Button
+                 type="button"
+                 variant="outline"
+                 size="sm"
+                 className="h-7 px-2 text-xs gap-1 shrink-0"
+               >
+                 <Calculator className="h-3 w-3" />
+                 <span>Calculator</span>
+                 <ChevronDown className="h-3 w-3" />
+               </Button>
+             </DropdownMenuTrigger>
+             <DropdownMenuContent align="start">
+               <DropdownMenuLabel className="text-xs">Calculators</DropdownMenuLabel>
+               <DropdownMenuSeparator />
+               {CALCULATOR_REGISTRY.length > 0 ? (
+                 CALCULATOR_REGISTRY.map(calculator => (
+                   <DropdownMenuItem key={calculator.key} className="text-sm gap-2" onClick={() => setActiveCalculatorKey(calculator.key)}>
+                     <Calculator className="h-3.5 w-3.5 text-muted-foreground" />
+                     {calculator.label}
+                   </DropdownMenuItem>
+                 ))
+               ) : (
+                 <div className="px-2 py-1.5 text-xs text-muted-foreground">No calculators configured yet.</div>
+               )}
+             </DropdownMenuContent>
+           </DropdownMenu>
         </nav>
 
         {/* Right: actions */}
@@ -3629,6 +3677,12 @@ export default function NewPrescriptionPage() {
         </DialogContent>
       </Dialog>
 
+      {activeCalculator && (
+        <Dialog open onOpenChange={open => { if (!open) setActiveCalculatorKey(null); }}>
+          <CalculatorDialog calculator={activeCalculator} />
+        </Dialog>
+      )}
+
     </div>
   );
 }
@@ -3664,6 +3718,48 @@ function QuickClinicalTool({ tool }: { tool: QuickToolDefinition }) {
         </div>
       )}
     </div>
+  );
+}
+
+function CalculatorDialog({ calculator }: { calculator: CalculatorDefinition }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [result, setResult] = useState<string | null>(null);
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2">
+          <Calculator className="h-4 w-4" />
+          {calculator.label}
+        </DialogTitle>
+        {calculator.description && <DialogDescription>{calculator.description}</DialogDescription>}
+      </DialogHeader>
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {calculator.fields.map(field => (
+            <label key={field.key} className="space-y-1 text-sm">
+              <span className="text-muted-foreground">{field.label}</span>
+              <Input
+                type="number"
+                inputMode="decimal"
+                placeholder={field.placeholder}
+                value={values[field.key] ?? ""}
+                onChange={e => {
+                  setValues(previous => ({ ...previous, [field.key]: e.target.value }));
+                  setResult(null);
+                }}
+              />
+            </label>
+          ))}
+        </div>
+        <Button type="button" className="w-full bg-teal-600 hover:bg-teal-700" onClick={() => setResult(calculator.calculate(values))}>
+          Calculate
+        </Button>
+        <div className="min-h-16 rounded-md border bg-muted/30 p-3 text-sm" aria-live="polite">
+          <span className="text-muted-foreground">{result ?? "Result will appear here."}</span>
+        </div>
+      </div>
+    </DialogContent>
   );
 }
 
