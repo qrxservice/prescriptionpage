@@ -1928,10 +1928,10 @@ export default function NewPrescriptionPage() {
 
   /* ── RENDER ──────────────────────────────────────────────────────── */
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen min-w-0 flex flex-col bg-background overflow-hidden">
 
       {/* ══ TOP NAV BAR ══════════════════════════════════════════════ */}
-      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b bg-background px-3 py-2 shrink-0 print:hidden z-20 relative">
+      <header className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b bg-background px-3 py-2 shrink-0 print:hidden z-20 relative">
         {/* Left: logo + title */}
         <div className="flex min-w-0 items-center gap-2 shrink-0">
           <Stethoscope className="h-4 w-4 text-primary" />
@@ -2082,7 +2082,7 @@ export default function NewPrescriptionPage() {
         </nav>
 
         {/* Right: actions */}
-        <div className="flex max-w-full flex-wrap items-center justify-end gap-1 shrink-0">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-1 shrink-0">
           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => setShowHeaderDlg(true)}>
             <Settings2 className="h-3.5 w-3.5" /><span className="hidden lg:inline">{L.headerSettings}</span>
           </Button>
@@ -2126,10 +2126,10 @@ export default function NewPrescriptionPage() {
       </header>
 
       {/* ══ TWO-COLUMN BODY ═══════════════════════════════════════════ */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+      <div className="relative flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden lg:flex-row">
 
         {/* ── LEFT PANEL — Patient Info ──────────────────────────── */}
-        <aside className="flex h-[45vh] w-full flex-col border-r bg-muted/10 shrink-0 overflow-hidden lg:h-auto lg:w-[30%] xl:w-[30%]">
+        <aside className="flex h-[45vh] w-full min-w-0 flex-col border-r bg-muted/10 shrink-0 overflow-hidden lg:h-auto lg:w-[30%] xl:w-[30%]">
           <ScrollArea className="flex-1">
             <div className="p-2 space-y-1.5 text-xs">
 
@@ -2564,9 +2564,9 @@ export default function NewPrescriptionPage() {
         </aside>
 
         {/* ── CENTER PANEL — Medicine entry + prescription body ─────── */}
-        <main className="flex min-h-0 flex-1 min-w-0 flex-col overflow-hidden bg-background/30">
-          <ScrollArea className="flex-1">
-            <div className="mx-auto w-full max-w-5xl space-y-4 p-3 sm:p-4">
+        <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-background/30">
+          <ScrollArea className="min-w-0 flex-1">
+            <div className="mx-auto w-full min-w-0 max-w-5xl space-y-4 p-3 sm:p-4">
 
               {recoveryDraft && (
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
@@ -2610,10 +2610,10 @@ export default function NewPrescriptionPage() {
               </div>
 
               {/* ── WIDE QUEUE SUMMARY HEADER ───────────────────────── */}
-              <div className="border rounded-lg bg-background overflow-hidden shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-teal-600/10">
+              <div className="min-w-0 max-w-full border rounded-lg bg-background overflow-hidden shadow-sm">
+                <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-teal-600/10">
                   <span className="text-xs font-bold uppercase tracking-wide text-teal-700 dark:text-teal-400">{L.queueSummary}</span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
                     <span className={cn("text-[10px] font-medium px-1.5 rounded-full border",
                       isDayEnded ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:border-red-800"
                         : isOnBreak ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800"
@@ -2626,7 +2626,7 @@ export default function NewPrescriptionPage() {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5 items-center p-2 border-b">
+                <div className="flex min-w-0 flex-wrap gap-1.5 items-center p-2 border-b">
                   <Button
                     size="sm"
                     className="h-7 text-xs px-2"
@@ -2646,40 +2646,40 @@ export default function NewPrescriptionPage() {
                       <RotateCcw className="h-3 w-3 mr-0.5" />{L.recall}
                     </Button>
                   </>}
-                  {queueWaiting[0] && <span className="text-xs text-muted-foreground">{L.nextColon} #{queueWaiting[0].serialNo} {queueWaiting[0].patientName}</span>}
-                  <div className="flex items-center gap-1 sm:ml-auto">
+                  {queueWaiting[0] && <span className="min-w-0 max-w-full flex-1 truncate text-xs text-muted-foreground">{L.nextColon} #{queueWaiting[0].serialNo} {queueWaiting[0].patientName}</span>}
+                  <div className="flex w-full max-w-full flex-wrap items-center gap-1 sm:ml-auto sm:w-auto">
                     <label className="text-[10px] text-muted-foreground font-semibold uppercase whitespace-nowrap">{L.followUpDate}</label>
                     <Input
-                      className="h-7 w-[9.5rem] text-xs"
+                      className="h-7 w-[9.5rem] max-w-full text-xs"
                       type={followUpDate && !/^\d{4}-\d{2}-\d{2}$/.test(followUpDate) ? "text" : "date"}
                       value={followUpDate}
                       onChange={e => setFollowUpDate(e.target.value)}
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 p-2">
-                  <div className="rounded bg-teal-600/10 px-2 py-1.5">
+                <div className="grid min-w-0 grid-cols-2 gap-1.5 p-2 sm:grid-cols-4 lg:grid-cols-6">
+                  <div className="min-w-0 rounded bg-teal-600/10 px-2 py-1.5">
                     <div className="text-[10px] text-muted-foreground truncate">{L.nowServingShort}</div>
                     <div className="text-base font-bold text-teal-700 dark:text-teal-400 truncate">{queueServing ? `#${queueServing.serialNo}` : "—"}</div>
                   </div>
-                  <div className="rounded bg-muted px-2 py-1.5">
+                  <div className="min-w-0 rounded bg-muted px-2 py-1.5">
                     <div className="text-[10px] text-muted-foreground truncate">{L.nextShort}</div>
                     <div className="text-base font-bold truncate">{queueWaiting[0] ? `#${queueWaiting[0].serialNo}` : "—"}</div>
                   </div>
-                  <div className="rounded bg-muted px-2 py-1.5">
+                  <div className="min-w-0 rounded bg-muted px-2 py-1.5">
                     <div className="text-[10px] text-muted-foreground">{L.waitingShort}</div>
                     <div className="text-base font-bold">{queueWaiting.length}</div>
                   </div>
-                  <div className="rounded bg-green-600/10 px-2 py-1.5">
+                  <div className="min-w-0 rounded bg-green-600/10 px-2 py-1.5">
                     <div className="text-[10px] text-muted-foreground">{L.completedCount}</div>
                     <div className="text-base font-bold text-green-700 dark:text-green-400">{qCompleted}</div>
                   </div>
-                  <div className="rounded bg-muted px-2 py-1.5">
+                  <div className="min-w-0 rounded bg-muted px-2 py-1.5">
                     <div className="text-[10px] text-muted-foreground">{L.totalAppts}</div>
                     <div className="text-base font-bold">{qTotalToday}</div>
                   </div>
                   {qAvgConsultMs > 0 && (
-                    <div className="rounded bg-muted/60 px-2 py-1.5">
+                    <div className="min-w-0 rounded bg-muted/60 px-2 py-1.5">
                       <div className="text-[10px] text-muted-foreground">{L.avgWaitTime}</div>
                       <div className="text-sm font-semibold">{Math.round(qAvgConsultMs / 60000)}m</div>
                     </div>
@@ -3037,17 +3037,17 @@ export default function NewPrescriptionPage() {
               </div>
 
               {/* Save buttons (bottom CTA) */}
-              <div className="flex gap-2 pb-4">
-                <Button className="flex-1 bg-teal-600 hover:bg-teal-700" onClick={() => handleSave(true, "final")} disabled={createRx.isPending || updateRx.isPending}>
+              <div className="flex flex-wrap gap-2 pb-4">
+                <Button className="w-full min-w-0 sm:flex-1 bg-teal-600 hover:bg-teal-700" onClick={() => handleSave(true, "final")} disabled={createRx.isPending || updateRx.isPending}>
                   <Printer className="h-4 w-4 mr-2" />{savePrintLabel}
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
+                <Button variant="outline" className="w-full min-w-0 sm:flex-1" onClick={() => handleSave(false, "final")} disabled={createRx.isPending || updateRx.isPending}>
                   {saveOnlyLabel}
                 </Button>
-                <Button variant="outline" onClick={() => handleSave(false, "draft")} disabled={createRx.isPending || updateRx.isPending}>
+                <Button variant="outline" className="w-full min-w-0 sm:flex-1" onClick={() => handleSave(false, "draft")} disabled={createRx.isPending || updateRx.isPending}>
                   <Save className="h-4 w-4 mr-2" />{saveDraftLabel}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${patient.name || "Patient"} — ${diagnosis || L.diagnosisDx}`)}`, "_blank", "noopener,noreferrer")}>
+                <Button type="button" variant="outline" className="w-full min-w-0 sm:flex-1" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${patient.name || "Patient"} — ${diagnosis || L.diagnosisDx}`)}`, "_blank", "noopener,noreferrer")}>
                   Share
                 </Button>
               </div>
@@ -3058,7 +3058,7 @@ export default function NewPrescriptionPage() {
 
         {/* ── TEMPLATES IN THE LEFT SIDEBAR ─────────────────────────── */}
         {showTemplates && (
-         <aside className="absolute inset-y-2 left-2 z-40 flex w-[min(30%,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-lg border bg-background shadow-xl" aria-label={L.templates}>
+         <aside className="absolute inset-y-2 left-2 right-2 z-40 flex w-auto max-w-none flex-col overflow-hidden rounded-lg border bg-background shadow-xl sm:right-auto sm:w-[min(30%,calc(100vw-1rem))] sm:max-w-[calc(100vw-1rem)]" aria-label={L.templates}>
           <div className="px-3 py-2 border-b bg-muted/20">
              <div className="flex flex-wrap items-center justify-between gap-1">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground shrink-0">{L.templates}</h3>
