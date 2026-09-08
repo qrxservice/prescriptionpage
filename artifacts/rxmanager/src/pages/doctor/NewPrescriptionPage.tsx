@@ -74,6 +74,24 @@ interface RxTemplate { id: number; type: string; title: string; content: string;
 
 type MedicineShortcut = Omit<MedItem, "id"> & { key: string; lastUsedAt: number; isFavorite: boolean };
 
+type QuickToolField = {
+  key: string;
+  label: string;
+  placeholder?: string;
+};
+
+type QuickToolDefinition = {
+  key: string;
+  label: string;
+  description?: string;
+  fields: QuickToolField[];
+  calculate: (values: Record<string, string>) => string | null;
+};
+
+// Add future clinical calculators here. The generic renderer below handles
+// their fields and output without changes to the prescription page layout.
+const QUICK_TOOL_REGISTRY: QuickToolDefinition[] = [];
+
 interface LocalPrescriptionDraft {
   version: 1;
   savedAt: number;
@@ -2447,9 +2465,17 @@ export default function NewPrescriptionPage() {
                       );
                     })}
                     {showNewToolNotice && (
-                      <div className="rounded border border-dashed border-teal-300 bg-background px-2 py-1.5 text-xs text-muted-foreground dark:border-teal-800">
-                        {isBn ? "নতুন ক্লিনিক্যাল টুল এখানে যোগ করা যাবে।" : "New clinical tools can be added here."}
-                      </div>
+                      QUICK_TOOL_REGISTRY.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {QUICK_TOOL_REGISTRY.map(tool => (
+                            <QuickClinicalTool key={tool.key} tool={tool} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded border border-dashed border-teal-300 bg-background px-2 py-1.5 text-xs text-muted-foreground dark:border-teal-800">
+                          {isBn ? "নতুন ক্লিনিক্যাল টুল এখানে যোগ করা যাবে।" : "New clinical tools can be added here."}
+                        </div>
+                      )
                     )}
                     {visibleMedicineShortcuts.length > 0 && (
                       <div className="mt-2 space-y-1">
@@ -3608,6 +3634,38 @@ export default function NewPrescriptionPage() {
 }
 
 /* ── Small helper components ────────────────────────────────────────── */
+
+function QuickClinicalTool({ tool }: { tool: QuickToolDefinition }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const output = tool.calculate(values);
+
+  return (
+    <div className="rounded border border-teal-200 bg-background p-2 dark:border-teal-800">
+      <div className="text-xs font-semibold text-teal-700 dark:text-teal-300">{tool.label}</div>
+      {tool.description && <p className="mt-0.5 text-[10px] text-muted-foreground">{tool.description}</p>}
+      <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+        {tool.fields.map(field => (
+          <label key={field.key} className="space-y-0.5 text-[10px] text-muted-foreground">
+            <span>{field.label}</span>
+            <Input
+              className="h-7 text-xs"
+              type="number"
+              inputMode="decimal"
+              placeholder={field.placeholder}
+              value={values[field.key] ?? ""}
+              onChange={e => setValues(previous => ({ ...previous, [field.key]: e.target.value }))}
+            />
+          </label>
+        ))}
+      </div>
+      {output && (
+        <div className="mt-1.5 rounded bg-teal-50 px-2 py-1 text-xs font-medium text-teal-800 dark:bg-teal-950/30 dark:text-teal-200">
+          {output}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function NavBtn({ href, icon, label, active }: { href: string; icon: React.ReactNode; label: string; active?: boolean }) {
   return (
