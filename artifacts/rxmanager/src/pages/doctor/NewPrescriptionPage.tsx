@@ -6,7 +6,7 @@ import {
   useGetMyRxSettings, useUpdateMyRxSettings, getPrescription,
   useListQueue, useListAppointments, useListPrescriptions, useGetAppSettings,
   useCallNextPatient, useSkipPatient, useMarkPatientSeen,
-  useRecallPatient, useServeQueueEntry, useUpdateDoctorStatus,
+  useRecallPatient, useServeQueueEntry, useUpdateDoctorStatus, useCreateMedicine,
 } from "@workspace/api-client-react";
 import type { DoctorRxSettings, DoctorRxSettingsInput, Prescription } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +28,7 @@ import {
   Activity, UserCheck, CheckCircle2, SkipForward, RotateCcw, ClipboardList,
   BookOpen, PlusCircle, Settings2, FileCog, Save, Copy, Star, Pencil, FileDown,
   Coffee, Timer, TrendingUp, Upload, FlaskConical,
-  Eye, EyeOff, ArrowUp, ArrowDown, RefreshCw,
+  Eye, EyeOff, ArrowUp, ArrowDown, RefreshCw, X,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
@@ -617,6 +617,8 @@ export default function NewPrescriptionPage() {
   const [pendingNext, setPendingNext] = useState<any>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [medicineShortcuts, setMedicineShortcuts] = useState<MedicineShortcut[]>([]);
+  const [saveMedicineToDb, setSaveMedicineToDb] = useState(false);
+  const [selectedMedicineId, setSelectedMedicineId] = useState<number | null>(null);
   const [recoveryDraft, setRecoveryDraft] = useState<LocalPrescriptionDraft | null>(null);
   const draftHydratedKeyRef = useRef<string | null>(null);
 
@@ -629,10 +631,10 @@ export default function NewPrescriptionPage() {
   // ── Medicine autocomplete
   const [medSug, setMedSug] = useState<MedSuggestion[]>([]);
   const [showSug, setShowSug] = useState(false);
-  const [showNewMedicineOption, setShowNewMedicineOption] = useState(false);
   const medInputRef = useRef<HTMLInputElement>(null);
   const sugRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const createMedicine = useCreateMedicine();
 
   // ── Templates
   const [templates, setTemplates] = useState<Record<string, RxTemplate[]>>({});
@@ -755,10 +757,19 @@ export default function NewPrescriptionPage() {
     });
   };
 
+  const removeMedicineShortcut = (key: string) => {
+    setMedicineShortcuts(previous => {
+      const next = previous.filter(item => item.key !== key);
+      persistMedicineShortcuts(next);
+      return next;
+    });
+  };
+
   const useMedicineShortcut = (shortcut: MedicineShortcut) => {
+    setSelectedMedicineId(-1);
+    setSaveMedicineToDb(false);
     setCurrentMed({ ...shortcut, id: crypto.randomUUID() });
     setShowSug(false);
-    setShowNewMedicineOption(false);
     setMedSug([]);
     medInputRef.current?.focus();
   };
@@ -923,10 +934,9 @@ export default function NewPrescriptionPage() {
 
   const searchMeds = useCallback((q: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!q || q.length < 1) {
+    if (!q || q.length < 2) {
       setMedSug([]);
       setShowSug(false);
-      setShowNewMedicineOption(false);
       return;
     }
     debounceRef.current = setTimeout(() => {
@@ -934,7 +944,6 @@ export default function NewPrescriptionPage() {
         .then(r => r.json()).then(data => {
           setMedSug(data);
           setShowSug(data.length > 0);
-          setShowNewMedicineOption(data.length === 0);
         })
         .catch(() => {});
     }, 250);
@@ -962,32 +971,53 @@ export default function NewPrescriptionPage() {
   const selectMedSug = (s: MedSuggestion) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     suppressNextSearchRef.current = true;
+    setSelectedMedicineId(s.id);
+    setSaveMedicineToDb(false);
     setCurrentMed(m => ({ ...m, brandName: s.brandName, genericName: s.genericName ?? "", strength: s.strength ?? "", dosageForm: s.dosageForm ?? "" }));
     setShowSug(false);
-    setShowNewMedicineOption(false);
     setMedSug([]);
   };
 
   // ── Add medicine to list
-  const addMedicine = () => {
+  const addMedicine = async () => {
     if (!currentMed.brandName.trim() && !currentMed.genericName.trim()) {
       toast({ title: L.enterMedName, variant: "destructive" }); return;
+    }
+    if (saveMedicineToDb && !currentMed.brandName.trim()) {
+      toast({ title: isBn ? "ব্র্যান্ড নাম প্রয়োজন" : "Brand name is required to save in DB", variant: "destructive" });
+      return;
+    }
+    if (saveMedicineToDb) {
+      try {
+        await createMedicine.mutateAsync({
+          data: {
+            brandName: currentMed.brandName.trim(),
+            genericName: currentMed.genericName.trim() || undefined,
+            strength: currentMed.strength.trim() || undefined,
+            dosageForm: currentMed.dosageForm.trim() || undefined,
+          },
+        });
+        toast({ title: isBn ? "ডাটাবেসে সংরক্ষিত হয়েছে" : "Medicine saved in DB" });
+      } catch {
+        toast({ title: isBn ? "ডাটাবেসে সংরক্ষণ করা যায়নি" : "Could not save medicine in DB", variant: "destructive" });
+      }
     }
     recordMedicineShortcut(currentMed);
     setMedicines(m => [...m, { ...currentMed, id: crypto.randomUUID() }]);
     setCurrentMed(emptyMed());
+    setSaveMedicineToDb(false);
+    setSelectedMedicineId(null);
     setMedSug([]);
     setShowSug(false);
-    setShowNewMedicineOption(false);
     medInputRef.current?.focus();
   };
 
   const editMedicine = (medicine: MedItem) => {
     suppressNextSearchRef.current = true;
+    setSelectedMedicineId(null);
     setCurrentMed({ ...medicine });
     setEditingMedicineId(medicine.id);
     setShowSug(false);
-    setShowNewMedicineOption(false);
     window.setTimeout(() => medInputRef.current?.focus(), 0);
   };
 
@@ -1002,9 +1032,9 @@ export default function NewPrescriptionPage() {
     ));
     setCurrentMed(emptyMed());
     setEditingMedicineId(null);
+    setSaveMedicineToDb(false);
     setMedSug([]);
     setShowSug(false);
-    setShowNewMedicineOption(false);
     medInputRef.current?.focus();
   };
 
@@ -2641,6 +2671,9 @@ export default function NewPrescriptionPage() {
                                 <button type="button" className="min-h-8 px-1.5 text-muted-foreground hover:text-amber-500" aria-label={L.favoriteMedicine} title={L.favoriteMedicine} onClick={() => toggleMedicineFavorite(shortcut.key)}>
                                   <Star className="h-3 w-3" />
                                 </button>
+                                <button type="button" className="min-h-8 px-1 text-muted-foreground hover:text-destructive" aria-label="Remove from recent medicines" title="Remove from recent medicines" onClick={() => removeMedicineShortcut(shortcut.key)}>
+                                  <X className="h-3 w-3" />
+                                </button>
                               </div>
                             ))}
                           </div>
@@ -2651,20 +2684,29 @@ export default function NewPrescriptionPage() {
 
                   {/* Brand name autocomplete */}
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{L.brandName}</label>
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{L.brandName}</label>
+                      <label className="flex shrink-0 items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                        <input type="checkbox" className="h-3 w-3 accent-teal-600" checked={saveMedicineToDb} disabled={selectedMedicineId !== null} onChange={e => setSaveMedicineToDb(e.target.checked)} />
+                        Save in DB
+                      </label>
+                    </div>
                     <div className="relative mt-0.5">
                       <Input
                         ref={medInputRef}
                         className="h-8 text-sm"
                         placeholder={L.medNamePlaceholder}
                         value={currentMed.brandName}
-                        onChange={e => setCurrentMed(m => ({ ...m, brandName: e.target.value }))}
+                        onChange={e => {
+                          setSelectedMedicineId(null);
+                          setCurrentMed(m => ({ ...m, brandName: e.target.value }));
+                        }}
                         onFocus={() => { if (medSug.length > 0) setShowSug(true); }}
                         autoComplete="off"
                       />
-                      {((showSug && medSug.length > 0) || (showNewMedicineOption && !!currentMed.brandName.trim())) && (
+                      {showSug && medSug.length > 0 && (
                         <div ref={sugRef} className="absolute top-full left-0 right-0 z-50 bg-background border rounded-lg shadow-lg max-h-48 overflow-y-auto mt-0.5">
-                          {showSug && medSug.length > 0 && medSug.map(s => (
+                          {medSug.map(s => (
                             <button key={s.id} type="button" onClick={() => selectMedSug(s)}
                               className="w-full text-left px-3 py-2 hover:bg-muted transition-colors border-b last:border-0 text-xs">
                               <div className="font-semibold">{s.brandName} {s.strength && <span className="text-muted-foreground">{s.strength}</span>}</div>
@@ -2672,12 +2714,6 @@ export default function NewPrescriptionPage() {
                               {s.manufacturer && <div className="text-muted-foreground text-[10px] italic">{s.manufacturer}</div>}
                             </button>
                           ))}
-                          {showNewMedicineOption && currentMed.brandName.trim() && (
-                            <button type="button" onClick={addMedicine}
-                              className="w-full text-left px-3 py-2 text-xs font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30">
-                              <Plus className="inline-block h-3 w-3 mr-1" />{L.addNewMedicine}
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>
