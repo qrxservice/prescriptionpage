@@ -53,18 +53,6 @@ const toLocalDateStr = (d: Date) => {
 // (isBuiltin=true) so they can be hidden, reordered, and replaced like
 // any other template. See /api/rx-templates backend for SYSTEM_DEFAULTS.
 const IX_CHIPS = ["CBC","Urine R/E","Blood Sugar (F)","Blood Sugar (R)","HbA1c","Lipid Profile","LFT","KFT","ECG","CXR","TSH","Stool R/E","USG Abdomen","Creatinine","PT/INR","Blood Culture","Urine Culture","Serum Electrolytes"];
-const ADVICE_CHIPS_BN = [
-  "প্রচুর পানি পান করুন","বিশ্রাম নিন","হালকা খাবার খান",
-  "ধুলো-ধোঁয়া এড়িয়ে চলুন","ঠান্ডা পানি এড়িয়ে চলুন",
-  "লবণ কম খান","চিনি কম খান","ধূমপান বর্জন করুন",
-  "নিয়মিত BP মাপুন","ওষুধ নিয়মিত খান","ফলো-আপে আসুন",
-];
-const ADVICE_CHIPS_EN = [
-  "Drink plenty of water","Take rest","Eat light meals",
-  "Avoid dust and smoke","Avoid cold water",
-  "Reduce salt intake","Reduce sugar intake","Quit smoking",
-  "Monitor BP regularly","Take medicines regularly","Come for follow-up",
-];
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 
@@ -2555,6 +2543,15 @@ export default function NewPrescriptionPage() {
                     </Button>
                   </>}
                   {queueWaiting[0] && <span className="text-xs text-muted-foreground">{L.nextColon} #{queueWaiting[0].serialNo} {queueWaiting[0].patientName}</span>}
+                  <div className="flex items-center gap-1 sm:ml-auto">
+                    <label className="text-[10px] text-muted-foreground font-semibold uppercase whitespace-nowrap">{L.followUpDate}</label>
+                    <Input
+                      className="h-7 w-[9.5rem] text-xs"
+                      type={followUpDate && !/^\d{4}-\d{2}-\d{2}$/.test(followUpDate) ? "text" : "date"}
+                      value={followUpDate}
+                      onChange={e => setFollowUpDate(e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 p-2">
                   <div className="rounded bg-teal-600/10 px-2 py-1.5">
@@ -2891,13 +2888,6 @@ export default function NewPrescriptionPage() {
                 <div className="p-2.5 space-y-1.5">
                   <Textarea className="text-sm min-h-[56px] resize-none" placeholder={L.advicePlaceholder} value={advice} onChange={e => setAdvice(e.target.value)} />
                   <div className="flex flex-wrap gap-1">
-                    {(isBn ? ADVICE_CHIPS_BN : ADVICE_CHIPS_EN).map(chip => (
-                      <button key={chip} type="button"
-                        onClick={() => setAdvice(a => a ? `${a}\n${chip}` : chip)}
-                        className="text-xs px-1.5 py-0.5 rounded border bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors">
-                        + {chip}
-                      </button>
-                    ))}
                     {(templates["advice"] ?? []).map(t => (
                       <button key={t.id} type="button" onClick={() => applyTemplate(t)}
                          className="text-sm px-1.5 py-0.5 rounded border bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors">
@@ -2934,17 +2924,6 @@ export default function NewPrescriptionPage() {
                     </Button>
                   </div>
                 </div>
-              </div>
-
-              {/* Follow-up — kept at the end of the prescription column */}
-              <div>
-                <label className="text-[10px] text-muted-foreground font-semibold uppercase">{L.followUpDate}</label>
-                <Input
-                  className="h-7 text-xs mt-0.5"
-                  type={followUpDate && !/^\d{4}-\d{2}-\d{2}$/.test(followUpDate) ? "text" : "date"}
-                  value={followUpDate}
-                  onChange={e => setFollowUpDate(e.target.value)}
-                />
               </div>
 
               {/* Save buttons (bottom CTA) */}
